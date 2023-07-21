@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="box">
+	<h1>Трубопроводы без температурного расширения (ХВ, канализация)</h1>
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+   			{% for message in messages %}
+         		<p>{{ message }}</p>
+        	{% endfor %}
+      	{% endif %}
+    {% endwith %}
+	<form action="" method="post" class="form">
+	{{ form.hidden_tag() }}
+		<table class="table-wrapper">
+			<thead>
+				<tr>
+					{% for field in form if field.name in ['base_material', 'direction_type', 'system', 'pipe_type'] %}
+					<th class="col-2 col-12-xsmall">{{ field.label }}</th>
+					{% endfor %}
+					{% for field in form if field.name not in ['base_material', 'direction_type', 'system', 'pipe_type', 'submit', 'csrf_token'] %}
+					<th class="col-1 col-12-xsmall">{{ field.label }}</th>
+					{% endfor %}
+				</tr>
+
+			</thead>
+				<tbody>
+					<tr>
+						{% for field in form %}
+						<td>{{ field() }}</td>
+						{% endfor %}
+					</tr> <!--ряд с ячейками тела таблицы-->
+				</tbody>
+		</table>
+	</form>
+</div>
+
+{% endblock %}

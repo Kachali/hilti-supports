@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/">Подбор опор HILTI</a>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('home') }}">На главную</a>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('contact') }}">Обратная связь</a>
+      </li>
+        {% if not logged_in: %}
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('login') }}">Вход</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('register') }}">Регистрация</a>
+      </li>
+
+        {% else %}
+        <a class="nav-link" href="{{ url_for('backet') }}">Корзина</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('logout') }}">Выход</a>
+
+        {% endif %}
+    </ul>
+
+
+  </div>
+</nav>
+     {% if logged_in: %}
+        <h5 class="navbar">Пользователь: {{ current_user.name }}. Компания: {{ current_user.company }}. Email: {{  current_user.email  }}</h5>
+    {% endif %}
+       {% block content %}
+
+       {% endblock %}
+</body>
+
+</html>

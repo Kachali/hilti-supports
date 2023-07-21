@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="box">
+	<h1>Войти или зарегистрироваться</h1>
+{% if not logged_in: %}
+  <a href="{{ url_for('login') }}" class="button fit">Войти</a>
+  <a href="{{ url_for('register') }}" class="button fit">Регистрация</a>
+
+{% endif %}
+</div>
+
+{% endblock %}

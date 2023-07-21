@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Подобранные опоры{% endblock %}
+{% block content %}
+
+
+<div class="box">
+
+<h2>Просмотреть опоры по системам</h2>
+
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+   			{% for message in messages %}
+         		<p>{{ message }}</p>
+        	{% endfor %}
+      	{% endif %}
+    {% endwith %}
+	{% for sys in not_empty_systems %}
+		<a href="{{ url_for('backet_per_system', sys=sys) }}" class="button fit">{{ rus_sys[all_systems.index(sys)]}}</a>
+	{% endfor %}
+	{% if length_of_systems_list==0 %}
+		<h4 style="color:red">Корзина пуста! Добавьте опоры.</h4>
+	{% endif %}
+</div>
+
+{% endblock %}

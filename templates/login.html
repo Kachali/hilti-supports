@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="box">
+    <h1>Вход</h1>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+   {% for message in messages %}
+         <p>{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('login') }}" method="post" class="col-4 col-12-xsmall">
+        <input type="text" name="email" placeholder="Email" id="demo-name" required="required"/>
+        <input type="password" name="password" placeholder="Пароль" required="required"/>
+        <button type="submit" class="button">Войти</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Подобранные опоры{% endblock %}
+{% block content %}
+
+
+<div class="box">
+	<h3>Система: {{  rus_sys  }}</h3>
+		<h2>Подобранные опоры</h2>
+			<div class="table-wrapper">
+				<table>
+					<thead>
+						<tr>
+							<th>Наименование опоры:</th>
+							<th>Описание (базовый материал, габариты, длина и тд):</th>
+							<th>Количество опор:</th>
+						</tr>
+					</thead>
+					<tbody>
+
+					{% for n in range(0, len_of_df) %}
+						<tr>
+							<td>{{ supp_data.loc[n]['Номер опоры'] }}</td>
+							<td>
+								{% for i in range(0,num_of_descr_columns) %}
+									{{ description_data.columns[i] }}: {{ description_data.loc[n][i] }}.
+								{% endfor %}
+							</td>
+							<td>{{ supp_data.loc[n]['Количество опор'] }}</td>
+							<td><a href="{{ url_for('delete_support', row_number=n, sys=current_system) }}" class="button fit">Удалить опору</a></td>
+						</tr>
+					{% endfor %}
+				</table>
+
+			</div>
+			<form action="{{ url_for('send', sys=current_system) }}" method="post">
+				<div class="row gtr-uniform">
+					<div class="col-6 col-12-xsmall">
+						<label>Название объекта:</label>
+						<input type="text" required placeholder="Введите название объекта" name="objectname">
+					</div>
+					<div class="col-6 col-12-xsmall">
+						<label>Адрес объекта:</label>
+						<input type="text" required placeholder="Введите адрес объекта" name="objectaddress">
+					</div>
+				</div>
+				<button type="submit" class="button primary fit">Создать спецификацию и отправить по электронной почте</button>
+			</form>
+	</div>
+{% endblock %}
