@@ -1,16 +1,19 @@
-# Use the official Python image as the base image
-FROM python:3.8
-RUN pip install --upgrade pip
+# start by pulling the python image
+FROM python:3.8-alpine
 
-# Set the working directory in the container
+# copy the requirements file into the image
+COPY ./requirements.txt /app/requirements.txt
+
+# switch working directory
 WORKDIR /app
 
-# Copy the application files into the working directory
+# install the dependencies and packages in the requirements file
+RUN pip install -r requirements.txt
+
+# copy every content from the local file to the image
 COPY . /app
 
-# Install the application dependencies
-RUN pip install -r requirements.txt
-RUN pip install --root-user-action=ignore
+# configure the container to run in an executed manner
+ENTRYPOINT [ "python" ]
 
-# Define the entry point for the container
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["view.py" ]
