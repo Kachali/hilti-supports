@@ -8,6 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Install the application dependencies
+RUN pip install --root-user-action=ignore
 RUN pip install -r requirements.txt
 
 # Define the entry point for the container
