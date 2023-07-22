@@ -1,5 +1,6 @@
 # Use the official Python image as the base image
 FROM python:3.8
+RUN pip install --upgrade pip
 
 # Set the working directory in the container
 WORKDIR /app
@@ -8,8 +9,8 @@ WORKDIR /app
 COPY . /app
 
 # Install the application dependencies
-RUN pip install --root-user-action=ignore
 RUN pip install -r requirements.txt
+#RUN pip install --root-user-action=ignore
 
 # Define the entry point for the container
 CMD ["flask", "run", "--host=0.0.0.0"]
