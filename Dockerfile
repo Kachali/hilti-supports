@@ -10,7 +10,7 @@ COPY . /app
 
 # Install the application dependencies
 RUN pip install -r requirements.txt
-#RUN pip install --root-user-action=ignore
+RUN pip install --root-user-action=ignore
 
 # Define the entry point for the container
 CMD ["flask", "run", "--host=0.0.0.0"]
