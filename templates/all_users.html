@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="box">
+	<h1>Все пользователи</h1>
+    {% if books == [] %}
+    <p>Library is empty.</p>
+    {% else %}
+    <ul>
+        {% for user in users: %}
+        <li>
+            {{ user.name }} - {{ user.company }} - {{ user.email }} - {{ user.password }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</div>
+
+{% endblock %}
