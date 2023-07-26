@@ -315,6 +315,15 @@ def show_users():
         print(all_users)
     return render_template("all_users.html", logged_in=current_user.is_authenticated, users=all_users)
 
+@app.route('/delete_user')
+@admin_only
+def delete_user():
+    user_id = request.args.get('id')
+    user_to_delete = User.query.get(user_id)
+    db.session.delete(user_to_delete)
+    db.session.commit()
+    return redirect(url_for('show_users'))
+
 with app.app_context():
     db.create_all()
     all_users = db.session.query(User).all()
