@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory
+from flask import Flask, render_template, request, url_for, redirect, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask_bootstrap import Bootstrap
@@ -12,6 +12,7 @@ from email.mime.text import MIMEText
 from email.header import Header
 from dotenv import load_dotenv
 from xlsxwriter.workbook import Workbook
+from functools import wraps
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -295,6 +296,24 @@ def send(sys):
         os.remove(final_filename + '.xlsx')
         return render_template("send.html", logged_in=current_user.is_authenticated, rus_sys=translated_system.lower())
 
+#декоратор для доступа к странице только админа (id=1)
+def admin_only(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # If id is not 1 then return abort with 403 error
+        if current_user.id != 1:
+            return abort(403)
+        # Otherwise continue with the route function
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route("/all_users")
+@admin_only
+def show_users():
+    with app.app_context():
+        all_users = db.session.query(User).all()
+        print(all_users)
+    return render_template("all_users.html", logged_in=current_user.is_authenticated, users=all_users)
 
 with app.app_context():
     db.create_all()
