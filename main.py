@@ -23,6 +23,7 @@ Bootstrap(app)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('BD_ROOT', "DATABASE_URL")
+#postgres://support_user_database_user:6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u@dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com/support_user_database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
