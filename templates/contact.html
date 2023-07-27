@@ -3,50 +3,43 @@
 {% block title %}Контакты{% endblock %}
 {% block content %}
 
-
   <!-- Main Content -->
   <div class="box">
       <div class="col-lg-8 col-md-10 mx-auto">
         <h4>Если у Вас возникли вопросы, Вы можете связаться со специалистом компании HILTI, заполнив форму ниже:</h4>
-        <!-- Contact Form - Enter your email address on line 19 of the mail/contact_me.php file to make this form work. -->
-        <!-- WARNING: Some web hosts do not allow emails to be sent through forms to common mail hosts like Gmail or Yahoo. It's recommended that you use a private domain email address! -->
-        <!-- To use the contact form, your site must be on a live web host with PHP! The form will not work locally! -->
         <form name="sentMessage" id="contactForm" action={{url_for("contact")}} method="post" novalidate>
           <div class="control-group">
             <div class="form-group floating-label-form-group controls">
               <label>Имя</label>
-              <input type="text" name="username" class="form-control" placeholder="Имя" id="name" required data-validation-required-message="Please enter your name.">
+              <input type="text" name="username" class="form-control" placeholder="Имя" id="name" required="required">
               <p class="help-block text-danger"></p>
             </div>
           </div>
           <div class="control-group">
             <div class="form-group floating-label-form-group controls">
               <label>Электронная почта</label>
-              <input type="email"  name="email" class="form-control" placeholder="Адрес электронной почты" id="email" required data-validation-required-message="Please enter your email address.">
+              <input type="email"  name="email" class="form-control" placeholder="Адрес электронной почты" id="email" required="required">
               <p class="help-block text-danger"></p>
             </div>
           </div>
           <div class="control-group">
             <div class="form-group col-xs-12 floating-label-form-group controls">
               <label>Телефон</label>
-              <input type="tel" name="phone" class="form-control" placeholder="Номер телефона" id="phone" required data-validation-required-message="Please enter your phone number.">
+              <input type="tel" name="phone" class="form-control" placeholder="Номер телефона" id="phone" required="required">
               <p class="help-block text-danger"></p>
             </div>
           </div>
           <div class="control-group">
             <div class="form-group floating-label-form-group controls">
               <label>Сообщение</label>
-              <textarea rows="5" name="message" class="form-control" placeholder="Текст сообщения" id="message" required data-validation-required-message="Please enter a message."></textarea>
+              <textarea rows="5" name="message" class="form-control" placeholder="Текст сообщения" id="message" required="required"></textarea>
               <p class="help-block text-danger"></p>
             </div>
           </div>
-          <br>
           <div id="success"></div>
           <button type="submit" class="button primary fit" id="sendMessageButton">Отправить</button>
         </form>
       </div>
   </div>
-
-  <hr>
 
 {% endblock %}

@@ -125,8 +125,8 @@ def contact():
         msg['Subject'] = Header('Обратная связь', mail_coding)  # Тема сообщения
         body = f"Имя: {name}.\n" \
                f"Email: {email}.\n" \
-               f"Phone: {phone_number}.\n" \
-               f"Message: {message}."
+               f"Телефон: {phone_number}.\n" \
+               f"Сообщение: {message}."
 
         msg.attach(MIMEText(body, 'plain', mail_coding))
         with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
