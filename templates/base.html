@@ -15,6 +15,11 @@
   <a class="navbar-brand" href="/">Подбор опор HILTI</a>
   <div class="collapse navbar-collapse">
     <ul class="navbar-nav ml-auto">
+        {% if admin: %}
+         <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('show_users') }}">Пользователи</a>
+      </li>
+        {% endif %}
       <li class="nav-item">
         <a class="nav-link" href="{{ url_for('home') }}">На главную</a>
       </li>
@@ -30,12 +35,16 @@
       </li>
 
         {% else %}
+        <li class="nav-item">
         <a class="nav-link" href="{{ url_for('backet') }}">Корзина</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{{ url_for('logout') }}">Выход</a>
-
+       </li>
         {% endif %}
+
+
+
     </ul>
 
 

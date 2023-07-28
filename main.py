@@ -146,11 +146,15 @@ def logout():
 @app.route('/support_system', methods=["GET", "POST"])
 def choose_support_system():
     form = ChooseSystemForm()
+    if current_user.id == 1:
+        admin = True
+    else:
+        admin = False
     if form.validate_on_submit():
         system = form.system.data[0]
         return redirect(url_for('choose_system_parameters', sys=system))
 
-    return render_template("support_system.html", logged_in=current_user.is_authenticated, form=form)
+    return render_template("support_system.html", logged_in=current_user.is_authenticated, form=form, admin=admin)
 
 
 @app.route("/support_system/<string:sys>", methods=["GET", "POST"])
@@ -312,7 +316,6 @@ def admin_only(f):
 def show_users():
     with app.app_context():
         all_users = db.session.query(User).all()
-        print(all_users)
     return render_template("all_users.html", logged_in=current_user.is_authenticated, users=all_users)
 
 @app.route('/delete_user')
