@@ -13,6 +13,7 @@ from email.header import Header
 from dotenv import load_dotenv
 from xlsxwriter.workbook import Workbook
 from functools import wraps
+import requests
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -42,6 +43,7 @@ systems_trans = ['Трубопроводы с температурным рас�
 # addr_from = current_user.email
 addr_to = os.environ.get('CONSTRUCTOR_EMAIL')
 password = os.environ.get('GMAIL_PASSWORD')
+domain_name = os.environ.get('YOUR_DOMAIN_NAME')
 # list_of_forms = [HotWaterForm(), ColdWaterForm(), SprinklerForm(), VentForm(), RadialFanForm(), RoofVentForm]
 
 @login_manager.user_loader
@@ -118,21 +120,32 @@ def contact():
         email = request.form["email"]
         phone_number = request.form["phone"]
         message = request.form["message"]
-        mail_coding = "windows-1251"
-        msg = MIMEMultipart()  # Создаем сообщение
-        msg['From'] = Header(email, mail_coding)  # Адресат
-        msg['To'] = Header(addr_to, mail_coding)  # Получатель
-        msg['Subject'] = Header('Обратная связь', mail_coding)  # Тема сообщения
+
         body = f"Имя: {name}.\n" \
                f"Email: {email}.\n" \
                f"Телефон: {phone_number}.\n" \
                f"Сообщение: {message}."
+        msg = MIMEText(body)
+        msg['Subject'] = 'Обратная связь'
+        msg['From'] = f"postmaster@{domain_name}"
+        msg['To'] = "shchekalina@gmail.com"
 
-        msg.attach(MIMEText(body, 'plain', mail_coding))
-        with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
+        # with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
+        #     connection.starttls()
+        #     connection.login(user=addr_to, password=password)
+        #     connection.sendmail(
+        #         from_addr=email,
+        #         to_addrs=addr_to,
+        #         msg=msg.as_string())
+        with smtplib.SMTP('smtp.mailgun.org', port=587) as connection:
             connection.starttls()
-            connection.login(user=addr_to, password=password)
-            connection.send_message(msg)
+            connection.login(user=f'postmaster@{domain_name}',
+                             password=os.environ.get('MAILGUN_PASSWORD'))
+            connection.sendmail(
+                msg['From'],
+                msg['To'],
+                msg.as_string())
+
         return render_template("contact.html", logged_in=current_user.is_authenticated, msg_sent=True)
     return render_template("contact.html", logged_in=current_user.is_authenticated, msg_sent=False)
 
