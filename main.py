@@ -1,11 +1,14 @@
 from flask import Flask, render_template, request, url_for, redirect, flash, abort
 from flask_sqlalchemy import SQLAlchemy
+import sqlite3
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask_bootstrap import Bootstrap
+from datetime import date
 from forms import ChooseSystemForm, VentForm, HotWaterForm, SprinklerForm, ColdWaterForm, RadialFanForm, RoofVentForm
 import os
 import pandas as pd
 from selection_functions import vent_support, attach_file
+from sqlalchemy.orm import relationship
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -45,18 +48,38 @@ addr_to = os.environ.get('CONSTRUCTOR_EMAIL')
 password = os.environ.get('GMAIL_PASSWORD')
 domain_name = os.environ.get('YOUR_DOMAIN_NAME')
 # list_of_forms = [HotWaterForm(), ColdWaterForm(), SprinklerForm(), VentForm(), RadialFanForm(), RoofVentForm]
+# SPECIFICATIONS = sqlite3.connect('instance/users.db')
+# SPEC_DF = pd.read_sql_query("SELECT * FROM specifications", SPECIFICATIONS)
+
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 ##CREATE TABLE IN DB
+class Specification(db.Model):
+    __tablename__ = "specifications"
+    id = db.Column(db.Integer, primary_key=True)
+    system = db.Column(db.String(250), nullable=False)
+    support_name = db.Column(db.String(250), nullable=False)
+    description = db.Column(db.String(250), nullable=False)
+    number_of_supports = db.Column(db.String(250), nullable=False)
+    date = db.Column(db.String(250), nullable=False)
+    # Create Foreign Key, "users.id" the users refers to the tablename of User.
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    # Create reference to the User object, the "posts" refers to the posts protperty in the User class.
+    author = relationship("User", back_populates="spec")
+    status = db.Column(db.String(250), nullable=False)
+
 class User(UserMixin, db.Model):
+    __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
     company = db.Column(db.String(1000))
+    spec = relationship("Specification", back_populates="author")
     is_authenticated = UserMixin
 
 
@@ -175,8 +198,6 @@ def choose_system_parameters(sys):
     translated_system = systems_trans[systems.index(sys)]
     if sys == 'ventilation':
         param_form = VentForm()
-        # if param_form.base_material == 'Металлоконструкции':
-        #     print('metal')
     else:
         return 'Страница в разработке'
     # elif sys == 'sprinkler':
@@ -191,7 +212,7 @@ def choose_system_parameters(sys):
     #     param_form = RoofVentForm()
 
     if request.method == 'POST' and param_form.validate_on_submit():
-        name_of_file = f'{current_user.name}_{translated_system}.csv'
+        # name_of_file = f'{current_user.name}_{translated_system}.csv'
         parameters = param_form.data
         parameters.pop('csrf_token')
         parameters.pop('submit')
@@ -211,17 +232,30 @@ def choose_system_parameters(sys):
                 number_of_supports = vent[1]
                 support_description = vent[2]
                 name_of_columns = vent[3]
-                # print(support_name, number_of_supports, support_description)
+                print(f'{support_name}, {number_of_supports}, {support_description}')
                 flash(f'Опора добавлена.')
 
-        try:
-            with open(name_of_file, "r", encoding="utf-8-sig"):
-                with open(name_of_file, "a", encoding="utf-8-sig") as csv_file:
-                    csv_file.write(f"{translated_system},{support_name},{number_of_supports},{support_description}\n")
-        except FileNotFoundError:
-            with open(name_of_file, "a", encoding="utf-8-sig") as csv_file:
-                csv_file.write(f"Система,Номер опоры,Количество опор,{name_of_columns}\n")
-                csv_file.write(f"{translated_system},{support_name},{number_of_supports},{support_description}\n")
+            new_specification = Specification(
+                system=translated_system,
+                support_name=support_name,
+                description=support_description,
+                number_of_supports=number_of_supports,
+                date=date.today().strftime("%d/%m/%Y"),
+                author=current_user,
+                status='В работе'
+            )
+            db.session.add(new_specification)
+            db.session.commit()
+        #
+        #
+        # try:
+        #     with open(name_of_file, "r", encoding="utf-8-sig"):
+        #         with open(name_of_file, "a", encoding="utf-8-sig") as csv_file:
+        #             csv_file.write(f"{translated_system},{support_name},{number_of_supports},{support_description}\n")
+        # except FileNotFoundError:
+        #     with open(name_of_file, "a", encoding="utf-8-sig") as csv_file:
+        #         csv_file.write(f"Система,Номер опоры,Количество опор,{name_of_columns}\n")
+        #         csv_file.write(f"{translated_system},{support_name},{number_of_supports},{support_description}\n")
         return redirect(url_for('choose_system_parameters', logged_in=current_user.is_authenticated, form=param_form, sys=sys))
 
     return render_template(f'{sys}.html', logged_in=current_user.is_authenticated, form=param_form, system=sys)
@@ -229,51 +263,82 @@ def choose_system_parameters(sys):
 
 @app.route("/backet", methods=["GET", "POST"])
 def backet():
+    # print(spec_df.groupby('system').value_counts())
+    # print(spec_df[spec_df['system']=='Вентиляция'])
     not_empty_systems = []
-    for sys in systems:
-        # print(sys)
-        translated_system = systems_trans[systems.index(sys)]
-        name_of_file = f'{current_user.name}_{translated_system}.csv'
-        try:
-            with open(name_of_file, encoding="utf-8-sig") as csv_file:
-                df = pd.read_csv(csv_file, delimiter=',')
-                if len(df) > 0:
-                    not_empty_systems.append(sys)
-
-        except FileNotFoundError:
+    for sys in systems_trans:
+        specifications = sqlite3.connect('instance/users.db')
+        spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
+        system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')]
+        # print(system_df)
+        if len(system_df) > 0:
+            not_empty_systems.append(sys)
+        else:
             continue
+    # print(not_empty_systems)
+
+        # translated_system = systems_trans[systems.index(sys)]
+        # print(translated_system)
+
+
+        # name_of_file = f'{current_user.name}_{translated_system}.csv'
+        # try:
+            # with open(name_of_file, encoding="utf-8-sig") as csv_file:
+            #     df = pd.read_csv(csv_file, delimiter=',')
+            #     if len(df) > 0:
+            #         not_empty_systems.append(sys)
+
+        # except FileNotFoundError:
+        #     continue
     return render_template("backet.html", logged_in=current_user.is_authenticated, not_empty_systems=not_empty_systems,
-                       rus_sys=systems_trans, all_systems=systems, length_of_systems_list=len(not_empty_systems))
+                       length_of_systems_list=len(not_empty_systems))
 
 
 @app.route("/backet/<string:sys>", methods=["GET", "POST"])
 def backet_per_system(sys):
-    translated_system = systems_trans[systems.index(sys)]
-    name_of_file = f'{current_user.name}_{translated_system}.csv'
-    try:
-        with open(name_of_file, encoding="utf-8-sig") as csv_file:
-            df = pd.read_csv(csv_file, delimiter=',')
-            description_df = df.drop(columns=['Система','Номер опоры','Количество опор'], axis=1)
-            description_df_columns_number = int(description_df.shape[1])
-            if len(df) == 0:
-                flash(f'Корзина пуста. Добавьте опоры.')
-                return redirect(url_for('choose_support_system', logged_in=current_user.is_authenticated))
-    except FileNotFoundError:
+    specifications = sqlite3.connect('instance/users.db')
+    spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
+    # translated_system = systems_trans[systems.index(sys)]
+    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')]
+    # print(system_df)
+    # print(len(system_df))
+    if len(system_df) == 0:
         flash(f'Корзина пуста. Добавьте опоры.')
-        return redirect(url_for('choose_system_parameters', sys=sys, logged_in=current_user.is_authenticated))
-    return render_template("backet_per_system.html", logged_in=current_user.is_authenticated, supp_data=df,
-                           len_of_df=len(df), current_system=sys, rus_sys=translated_system, description_data=description_df, num_of_descr_columns=description_df_columns_number)
+        return redirect(url_for('choose_support_system', logged_in=current_user.is_authenticated))
+    # print(system_df.columns)
+    # print(system_df.loc[2]['support_name'])
+
+    # name_of_file = f'{current_user.name}_{translated_system}.csv'
+    # try:
+    #     with open(name_of_file, encoding="utf-8-sig") as csv_file:
+    #         df = pd.read_csv(csv_file, delimiter=',')
+    #         description_df = df.drop(columns=['Система','Номер опоры','Количество опор'], axis=1)
+    #         description_df_columns_number = int(description_df.shape[1])
+    #         if len(df) == 0:
+    #             flash(f'Корзина пуста. Добавьте опоры.')
+    #             return redirect(url_for('choose_support_system', logged_in=current_user.is_authenticated))
+    # except FileNotFoundError:
+    #     flash(f'Корзина пуста. Добавьте опоры.')
+    #     return redirect(url_for('choose_system_parameters', sys=sys, logged_in=current_user.is_authenticated))
+    return render_template("backet_per_system.html", logged_in=current_user.is_authenticated, supp_data=system_df,
+                           len_of_df=len(system_df), current_system=sys)
 
 
 @app.route('/backet/<string:sys>/delete', methods=["GET", "POST"])
 def delete_support(sys):
-    translated_system = systems_trans[systems.index(sys)]
-    name_of_file = f'{current_user.name}_{translated_system}.csv'
-    row_id = int(request.args.get('row_number'))
-    with open(name_of_file, encoding="utf-8-sig") as csv_file:
-        df = pd.read_csv(csv_file, delimiter=',')
-        df.drop(labels=[row_id], axis=0, inplace=True)
-    df.to_csv(f'{current_user.name}_{translated_system}.csv', index=False, encoding="utf-8-sig")
+    support_id = request.args.get('id')
+    print(f'id = {support_id}, {type(support_id)}')
+    support_to_delete = Specification.query.get(support_id)
+    print(support_to_delete)
+    db.session.delete(support_to_delete)
+    db.session.commit()
+    # translated_system = systems_trans[systems.index(sys)]
+    # name_of_file = f'{current_user.name}_{translated_system}.csv'
+    # row_id = int(request.args.get('row_number'))
+    # with open(name_of_file, encoding="utf-8-sig") as csv_file:
+    #     df = pd.read_csv(csv_file, delimiter=',')
+    #     df.drop(labels=[row_id], axis=0, inplace=True)
+    # df.to_csv(f'{current_user.name}_{translated_system}.csv', inidex=False, encoding="utf-8-sig")
     return redirect(url_for('backet_per_system', sys=sys, logged_in=current_user.is_authenticated))
 
 

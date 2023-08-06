@@ -19,14 +19,12 @@
 
 					{% for n in range(0, len_of_df) %}
 						<tr>
-							<td>{{ supp_data.loc[n]['Номер опоры'] }}</td>
+							<td>{{ supp_data.loc[n]['support_name'] }}</td>
 							<td>
-								{% for i in range(0,num_of_descr_columns) %}
-									{{ description_data.columns[i] }}: {{ description_data.loc[n][i] }}.
-								{% endfor %}
+								{{ supp_data.loc[n]['description'] }}
 							</td>
-							<td>{{ supp_data.loc[n]['Количество опор'] }}</td>
-							<td><a href="{{ url_for('delete_support', row_number=n, sys=current_system) }}" class="button fit">Удалить опору</a></td>
+							<td>{{ supp_data.loc[n]['number_of_supports'] }}</td>
+							<td><a href="{{ url_for('delete_support', id=supp_data.loc[n]['id'], sys=current_system) }}" class="button fit">Удалить опору</a></td>
 						</tr>
 					{% endfor %}
 				</table>
