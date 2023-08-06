@@ -298,7 +298,6 @@ def backet():
 def backet_per_system(sys):
     specifications = sqlite3.connect('instance/users.db')
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
-    # translated_system = systems_trans[systems.index(sys)]
     system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')]
     # print(system_df)
     # print(len(system_df))
@@ -346,6 +345,7 @@ def delete_support(sys):
 def send(sys):
     translated_system = systems_trans[systems.index(sys)]
     if request.method == 'POST':
+
         object_name = request.form.get("objectname")
         object_address = request.form.get("objectaddress")
 
