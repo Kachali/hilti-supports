@@ -17,7 +17,7 @@ def vent_support(support):
         num_of_supports = math.ceil(length / 3)
 
     # print(base_material, direction_type, duct_type, diameter, num_of_supports)
-    with open('static/Вентиляция опоры csv2.csv', 'rb', encoding='CP-866') as file:
+    with open('static/Вентиляция опоры csv2.csv', 'r', encoding='CP-866') as file:
         data = pd.read_csv(file, delimiter=';')
         # print(data.columns, data.shape)
         # print(data.head)
