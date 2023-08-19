@@ -4,6 +4,7 @@ from email import encoders
 from email.mime.base import MIMEBase
 import mimetypes
 import os
+from requests.auth import HTTPBasicAuth
 
 def vent_support(support):
     base_material = support['parameters']['base_material']
@@ -17,7 +18,7 @@ def vent_support(support):
         num_of_supports = math.ceil(length / 3)
 
     # print(base_material, direction_type, duct_type, diameter, num_of_supports)
-    with open('static/Вентиляция опоры csv2.csv', 'r', encoding='Windows-1251') as file:
+    with open('static/files/Вентиляция опоры csv2.csv', 'r', encoding='Windows-1251') as file:
         data = pd.read_csv(file, delimiter=';')
         # print(data.columns, data.shape)
         # print(data.head)
@@ -58,3 +59,21 @@ def attach_file(msg, filepath):  # Функция по добавлению ко
         encoders.encode_base64(file)  # Содержимое должно кодироваться как Base64
     file.add_header('Content-Disposition', 'attachment', filename=filename)  # Добавляем заголовки
     msg.attach(file)
+
+
+def sheety_send():
+    sheety_endpoint = "https://api.sheety.co/38e738eefdc0953cd32dd08d2d4c0a3d/спецификация для отправки/клиенту"
+    sheety_user = "alina"
+    sheety_password = "fnL283BmW*zC2%Km"
+    sheety_auth = "Basic YWxpbmE6Zm5MMjgzQm1XKnpDMiVLbQ=="
+    sheet_headers = HTTPBasicAuth(username=sheety_user, password=sheety_password)
+    #
+    # sheet_params = {
+    # "system":
+    # "support_name":
+    # "description":
+    # "number_of_supports":
+    # "date":
+    # "status":
+    # "object":
+    # "object_address":}

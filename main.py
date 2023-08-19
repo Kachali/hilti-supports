@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, abort
+import time
+
+from flask import Flask, render_template, request, url_for, redirect, flash, abort, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 import sqlite3
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
@@ -17,6 +19,8 @@ from dotenv import load_dotenv
 from xlsxwriter.workbook import Workbook
 from functools import wraps
 import requests
+from requests.auth import HTTPBasicAuth
+
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -47,6 +51,9 @@ systems_trans = ['Трубопроводы с температурным рас�
 addr_to = os.environ.get('CONSTRUCTOR_EMAIL')
 password = os.environ.get('GMAIL_PASSWORD')
 domain_name = os.environ.get('YOUR_DOMAIN_NAME')
+
+
+
 # list_of_forms = [HotWaterForm(), ColdWaterForm(), SprinklerForm(), VentForm(), RadialFanForm(), RoofVentForm]
 # SPECIFICATIONS = sqlite3.connect('instance/users.db')
 # SPEC_DF = pd.read_sql_query("SELECT * FROM specifications", SPECIFICATIONS)
@@ -298,14 +305,16 @@ def backet():
 def backet_per_system(sys):
     specifications = sqlite3.connect('instance/users.db')
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
-    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')]
-    # print(system_df)
-    # print(len(system_df))
+    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
+    print(system_df.id)
+    # for n in system_df:
+    #     id_list.append(system_df.id)
+    print(len(system_df))
     if len(system_df) == 0:
         flash(f'Корзина пуста. Добавьте опоры.')
         return redirect(url_for('choose_support_system', logged_in=current_user.is_authenticated))
     # print(system_df.columns)
-    # print(system_df.loc[2]['support_name'])
+    # print(system_df.loc[3]['support_name'])
 
     # name_of_file = f'{current_user.name}_{translated_system}.csv'
     # try:
@@ -343,40 +352,81 @@ def delete_support(sys):
 
 @app.route('/backet/<string:sys>/send', methods=["GET", "POST"])
 def send(sys):
-    translated_system = systems_trans[systems.index(sys)]
+    specifications = sqlite3.connect('instance/users.db')
+    spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
+    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
     if request.method == 'POST':
+        sheety_endpoint = os.environ.get('SHEETY_ENDPOINT')
+        sheety_user = os.environ.get('SHEETY_USER')
+        sheety_password = os.environ.get('SHEETY_PASSWORD')
+        sheet_headers = HTTPBasicAuth(username=sheety_user, password=sheety_password)
+        filename = f'{request.form.get("objectname")}_{current_user.name}_{sys}_{date.today()}'
+        # print(filename)
+        for n in range(0, len(system_df)):
+            # print(system_df.loc[n]['id'])
+            line_to_update = Specification.query.get(int(system_df.loc[n]['id']))
+            line_to_update.status = "Отправлено"
+            # db.session.commit()
+            sheet_params = {
+                "клиенту": {
+                    "system": sys,
+                    "supportname": system_df.loc[n]['support_name'],
+                    "description": system_df.loc[n]['description'],
+                    "numberofsupports": system_df.loc[n]['number_of_supports'],
+                    "date": system_df.loc[n]['date'],
+                    "status": "Отправлено",
+                    "object": request.form.get("objectname"),
+                    "address": request.form.get("objectaddress")
+                    }
+            }
+            response_sheet = requests.post(url=sheety_endpoint, json=sheet_params, auth=sheet_headers)
+            # print(response_sheet.text)
+            with open(f'static/files/specifications/{filename}.csv', "a", encoding="utf-8-sig") as csv_file:
+                csv_file.write(f"{system_df.loc[n]['support_name']},{system_df.loc[n]['description']},{system_df.loc[n]['number_of_supports']},{request.form.get('objectname')}\n")
 
-        object_name = request.form.get("objectname")
-        object_address = request.form.get("objectaddress")
 
-        # добавляем к имени название объекта и переводим в формат xlsx
-        name_of_file = f'{current_user.name}_{translated_system}.csv'
-        final_filename = f'{object_name}_{current_user.name}_{translated_system}'
-        pd.read_csv(name_of_file, sep=",", encoding="utf8").to_excel(final_filename + '.xlsx', index=None)
-        filepath = final_filename + '.xlsx'  # Имя файла в абсолютном или относительном формате
-        recipients = [current_user.email, addr_to]
-        mail_coding = "windows-1251"
-        msg = MIMEMultipart()  # Создаем сообщение
-        msg['From'] = Header(current_user.email, mail_coding)  # Адресат
-        msg['To'] = Header(", ".join(recipients), mail_coding)  # Получатель
-        msg['Subject'] = Header('Спецификация HILTI', mail_coding)  # Тема сообщения
-        body = f"Спецификация на cистемy: {translated_system.lower()}.\n" \
-               f"Объект: {object_name}.\n" \
-               f"Адрес объекта: {object_address}.\n" \
-               f"Проектировщик: {current_user.name}.\n" \
-               f"Компания: {current_user.company}."
+        return render_template("send.html", logged_in=current_user.is_authenticated, filename=filename, sys=sys)
 
-        msg.attach(MIMEText(body, 'plain', mail_coding))
-        attach_file(msg, filepath)
 
-        with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
-            connection.starttls()
-            connection.login(user=addr_to, password=password)
-            connection.send_message(msg)
+        # # добавляем к имени название объекта и переводим в формат xlsx
+        # name_of_file = f'{current_user.name}_{translated_system}.csv'
+        # final_filename = f'{object_name}_{current_user.name}_{translated_system}'
+        # pd.read_csv(name_of_file, sep=",", encoding="utf8").to_excel(final_filename + '.xlsx', index=None)
+        # filepath = final_filename + '.xlsx'  # Имя файла в абсолютном или относительном формате
+        # recipients = [current_user.email, addr_to]
+        # mail_coding = "windows-1251"
+        # msg = MIMEMultipart()  # Создаем сообщение
+        # msg['From'] = Header(current_user.email, mail_coding)  # Адресат
+        # msg['To'] = Header(", ".join(recipients), mail_coding)  # Получатель
+        # msg['Subject'] = Header('Спецификация HILTI', mail_coding)  # Тема сообщения
+        # body = f"Спецификация на cистемy: {translated_system.lower()}.\n" \
+        #        f"Объект: {object_name}.\n" \
+        #        f"Адрес объекта: {object_address}.\n" \
+        #        f"Проектировщик: {current_user.name}.\n" \
+        #        f"Компания: {current_user.company}."
+        #
+        # msg.attach(MIMEText(body, 'plain', mail_coding))
+        # attach_file(msg, filepath)
+        #
+        # with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
+        #     connection.starttls()
+        #     connection.login(user=addr_to, password=password)
+        #     connection.send_message(msg)
+        #
+        # os.remove(name_of_file)
+        # os.remove(final_filename + '.xlsx')
 
-        os.remove(name_of_file)
-        os.remove(final_filename + '.xlsx')
-        return render_template("send.html", logged_in=current_user.is_authenticated, rus_sys=translated_system.lower())
+
+@app.route('/download_file', methods=["GET", "POST"])
+def download_file():
+    filename = request.args.get('filename')
+    print(filename)
+    # final_filename = filename + str(date.today())
+    # pd.read_csv(filename, sep=",", encoding="utf8").to_excel(f"{final_filename} + .xlsx", index=None)
+    # filepath = final_filename + '.xlsx'  # Имя файла в абсолютном или относительном формате
+
+    return send_from_directory('static', f"files/specifications/{filename}.csv")
+
 
 #декоратор для доступа к странице только админа (id=1)
 def admin_only(f):

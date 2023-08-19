@@ -1,13 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Спецификация отправлена{% endblock %}
+{% block title %}Скачать спецификацию{% endblock %}
 {% block content %}
 
 <div class="box">
-<h2>Спецификация на систему {{  rus_sys  }} отправлена!</h2>
-
-    <a href="{{ url_for('choose_support_system')}}" class="button primary">Выбрать опоры</a>
+    <h2>Скачать спецификацию</h2>
+<!--<h2>Спецификация на систему {{  rus_sys  }} отправлена!</h2>-->
+    <a href="{{ url_for('download_file', filename=filename)}}" class="button primary">Скачать в формате эксель</a>
+<div>
+    <a href="{{ url_for('choose_support_system')}}" class="button primary">Добавить опоры</a>
      <a href="{{ url_for('logout')}}" class="button primary">Выйти</a>
-
+</div>
 </div>
 
 {% endblock %}
