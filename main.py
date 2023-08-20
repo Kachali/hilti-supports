@@ -362,13 +362,9 @@ def send(sys):
         # sheety_password = os.environ.get('SHEETY_PASSWORD')
         # sheet_headers = HTTPBasicAuth(username=sheety_user, password=sheety_password)
         filename = f'{request.form.get("objectname")}_{current_user.name}_{sys}_{date.today()}'
-        # print(filename)
         system_to_send_df.to_excel(f'static/files/specifications/{filename}.xlsx')
-        for n in range(0, len(system_df)):
+        # for n in range(0, len(system_df)):
             # print(system_df.loc[n]['id'])
-            line_to_update = Specification.query.get(int(system_df.loc[n]['id']))
-            line_to_update.status = "Отправлено"
-            db.session.commit()
             # sheet_params = {
             #     "клиенту": {
             #         "system": sys,
