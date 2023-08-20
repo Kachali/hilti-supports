@@ -356,36 +356,36 @@ def send(sys):
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
     system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
     if request.method == 'POST':
-        sheety_endpoint = os.environ.get('SHEETY_ENDPOINT')
-        sheety_user = os.environ.get('SHEETY_USER')
-        sheety_password = os.environ.get('SHEETY_PASSWORD')
-        sheet_headers = HTTPBasicAuth(username=sheety_user, password=sheety_password)
+        system_to_send_df = system_df.drop(columns=['author_id','id','status'], axis=1)
+        # sheety_endpoint = os.environ.get('SHEETY_ENDPOINT')
+        # sheety_user = os.environ.get('SHEETY_USER')
+        # sheety_password = os.environ.get('SHEETY_PASSWORD')
+        # sheet_headers = HTTPBasicAuth(username=sheety_user, password=sheety_password)
         filename = f'{request.form.get("objectname")}_{current_user.name}_{sys}_{date.today()}'
         # print(filename)
+        system_to_send_df.to_excel(f'static/files/specifications/{filename}.xlsx')
         for n in range(0, len(system_df)):
             # print(system_df.loc[n]['id'])
             line_to_update = Specification.query.get(int(system_df.loc[n]['id']))
             line_to_update.status = "Отправлено"
-            # db.session.commit()
-            sheet_params = {
-                "клиенту": {
-                    "system": sys,
-                    "supportname": system_df.loc[n]['support_name'],
-                    "description": system_df.loc[n]['description'],
-                    "numberofsupports": system_df.loc[n]['number_of_supports'],
-                    "date": system_df.loc[n]['date'],
-                    "status": "Отправлено",
-                    "object": request.form.get("objectname"),
-                    "address": request.form.get("objectaddress")
-                    }
-            }
-            response_sheet = requests.post(url=sheety_endpoint, json=sheet_params, auth=sheet_headers)
-            # print(response_sheet.text)
-            with open(f'static/files/specifications/{filename}.csv', "a", encoding="utf-8-sig") as csv_file:
-                csv_file.write(f"{system_df.loc[n]['support_name']},{system_df.loc[n]['description']},{system_df.loc[n]['number_of_supports']},{request.form.get('objectname')}\n")
+            db.session.commit()
+            # sheet_params = {
+            #     "клиенту": {
+            #         "system": sys,
+            #         "supportname": system_df.loc[n]['support_name'],
+            #         "description": system_df.loc[n]['description'],
+            #         "numberofsupports": system_df.loc[n]['number_of_supports'],
+            #         "date": system_df.loc[n]['date'],
+            #         "status": "Отправлено",
+            #         "object": request.form.get("objectname"),
+            #         "address": request.form.get("objectaddress")
+            #         }
+            # }
+            # response_sheet = requests.post(url=sheety_endpoint, json=sheet_params, auth=sheet_headers)
+            # # print(response_sheet.text)
+        return send_from_directory('static', f"files/specifications/{filename}.xlsx")
 
-
-        return render_template("send.html", logged_in=current_user.is_authenticated, filename=filename, sys=sys)
+    # return render_template("send.html", logged_in=current_user.is_authenticated, sys=sys)
 
 
         # # добавляем к имени название объекта и переводим в формат xlsx
@@ -417,16 +417,17 @@ def send(sys):
         # os.remove(final_filename + '.xlsx')
 
 
-@app.route('/download_file', methods=["GET", "POST"])
-def download_file():
-    filename = request.args.get('filename')
-    print(filename)
-    # final_filename = filename + str(date.today())
-    # pd.read_csv(filename, sep=",", encoding="utf8").to_excel(f"{final_filename} + .xlsx", index=None)
-    # filepath = final_filename + '.xlsx'  # Имя файла в абсолютном или относительном формате
-
-    return send_from_directory('static', f"files/specifications/{filename}.csv")
-
+@app.route('/backet/<string:sys>/delete_all>', methods=["GET", "POST"])
+def delete_all(sys):
+    specifications = sqlite3.connect('instance/users.db')
+    spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
+    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
+    for n in range(0, len(system_df)):
+        # print(system_df.loc[n]['id'])
+        line_to_update = Specification.query.get(int(system_df.loc[n]['id']))
+        line_to_update.status = "Отправлено"
+        db.session.commit()
+    return redirect(url_for('choose_support_system', sys=sys, logged_in=current_user.is_authenticated))
 
 #декоратор для доступа к странице только админа (id=1)
 def admin_only(f):

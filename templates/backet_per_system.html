@@ -30,6 +30,8 @@
 				</table>
 
 			</div>
+
+
 			<form action="{{ url_for('send', sys=current_system) }}" method="post">
 				<div class="row gtr-uniform">
 					<div class="col-6 col-12-xsmall">
@@ -41,7 +43,10 @@
 						<input type="text" required placeholder="Введите адрес объекта" name="objectaddress">
 					</div>
 				</div>
-				<button type="submit" class="button primary fit">Создать спецификацию</button>
+				<button type="submit" class="button primary fit">Создать спецификацию и скачать в формате эксель</button>
 			</form>
+
+			<a href="{{ url_for('choose_support_system')}}" class="button primary">Добавить опоры</a>
+			<a href="{{ url_for('delete_all', sys=current_system) }}" class="button primary">Очистить корзину</a>
 	</div>
 {% endblock %}
