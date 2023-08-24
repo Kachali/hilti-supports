@@ -1,7 +1,7 @@
-import time
-
+# from models import User, Specification
 from flask import Flask, render_template, request, url_for, redirect, flash, abort, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
 import sqlite3
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask_bootstrap import Bootstrap
@@ -10,7 +10,6 @@ from forms import ChooseSystemForm, VentForm, HotWaterForm, SprinklerForm, ColdW
 import os
 import pandas as pd
 from selection_functions import vent_support, attach_file
-from sqlalchemy.orm import relationship
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -25,19 +24,45 @@ from requests.auth import HTTPBasicAuth
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
-list_of_supports = []
-
 app = Flask(__name__)
 Bootstrap(app)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('BD_ROOT', "DATABASE_URL")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 #postgres://support_user_database_user:6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u@dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com/support_user_database
+# 'BD_ROOT',
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+##CREATE TABLE IN DB
+class Specification(db.Model):
+    __tablename__ = "specifications"
+    id = db.Column(db.Integer, primary_key=True)
+    system = db.Column(db.String(250), nullable=False)
+    support_name = db.Column(db.String(250), nullable=False)
+    description = db.Column(db.String(250), nullable=False)
+    number_of_supports = db.Column(db.String(250), nullable=False)
+    date = db.Column(db.String(250), nullable=False)
+    # Create Foreign Key, "users.id" the users refers to the tablename of User.
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    # Create reference to the User object, the "posts" refers to the posts property in the User class.
+    author = relationship("User", back_populates="spec")
+    status = db.Column(db.String(250), nullable=False)
+    object = db.Column(db.String(250))
+    object_address = db.Column(db.String(250))
+    send_date = db.Column(db.String(250))
+
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(1000))
+    company = db.Column(db.String(1000))
+    spec = relationship("Specification", back_populates="author")
+    is_authenticated = UserMixin
 
 systems = ['hot_water', 'cold_water', 'sprinkler', 'ventilation', 'radial_fans', 'roof_equipment']
 systems_trans = ['Трубопроводы с температурным расширением (отопление, ГВ)',
@@ -53,42 +78,13 @@ password = os.environ.get('GMAIL_PASSWORD')
 domain_name = os.environ.get('YOUR_DOMAIN_NAME')
 
 
-
 # list_of_forms = [HotWaterForm(), ColdWaterForm(), SprinklerForm(), VentForm(), RadialFanForm(), RoofVentForm]
 # SPECIFICATIONS = sqlite3.connect('instance/users.db')
 # SPEC_DF = pd.read_sql_query("SELECT * FROM specifications", SPECIFICATIONS)
 
-
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-##CREATE TABLE IN DB
-class Specification(db.Model):
-    __tablename__ = "specifications"
-    id = db.Column(db.Integer, primary_key=True)
-    system = db.Column(db.String(250), nullable=False)
-    support_name = db.Column(db.String(250), nullable=False)
-    description = db.Column(db.String(250), nullable=False)
-    number_of_supports = db.Column(db.String(250), nullable=False)
-    date = db.Column(db.String(250), nullable=False)
-    # Create Foreign Key, "users.id" the users refers to the tablename of User.
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    # Create reference to the User object, the "posts" refers to the posts protperty in the User class.
-    author = relationship("User", back_populates="spec")
-    status = db.Column(db.String(250), nullable=False)
-
-class User(UserMixin, db.Model):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
-    name = db.Column(db.String(1000))
-    company = db.Column(db.String(1000))
-    spec = relationship("Specification", back_populates="author")
-    is_authenticated = UserMixin
-
 
 @app.route('/')
 def home():
@@ -253,8 +249,6 @@ def choose_system_parameters(sys):
             )
             db.session.add(new_specification)
             db.session.commit()
-        #
-        #
         # try:
         #     with open(name_of_file, "r", encoding="utf-8-sig"):
         #         with open(name_of_file, "a", encoding="utf-8-sig") as csv_file:
@@ -284,19 +278,6 @@ def backet():
             continue
     # print(not_empty_systems)
 
-        # translated_system = systems_trans[systems.index(sys)]
-        # print(translated_system)
-
-
-        # name_of_file = f'{current_user.name}_{translated_system}.csv'
-        # try:
-            # with open(name_of_file, encoding="utf-8-sig") as csv_file:
-            #     df = pd.read_csv(csv_file, delimiter=',')
-            #     if len(df) > 0:
-            #         not_empty_systems.append(sys)
-
-        # except FileNotFoundError:
-        #     continue
     return render_template("backet.html", logged_in=current_user.is_authenticated, not_empty_systems=not_empty_systems,
                        length_of_systems_list=len(not_empty_systems))
 
@@ -340,13 +321,6 @@ def delete_support(sys):
     print(support_to_delete)
     db.session.delete(support_to_delete)
     db.session.commit()
-    # translated_system = systems_trans[systems.index(sys)]
-    # name_of_file = f'{current_user.name}_{translated_system}.csv'
-    # row_id = int(request.args.get('row_number'))
-    # with open(name_of_file, encoding="utf-8-sig") as csv_file:
-    #     df = pd.read_csv(csv_file, delimiter=',')
-    #     df.drop(labels=[row_id], axis=0, inplace=True)
-    # df.to_csv(f'{current_user.name}_{translated_system}.csv', inidex=False, encoding="utf-8-sig")
     return redirect(url_for('backet_per_system', sys=sys, logged_in=current_user.is_authenticated))
 
 
@@ -356,61 +330,19 @@ def send(sys):
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
     system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
     if request.method == 'POST':
-        system_to_send_df = system_df.drop(columns=['author_id','id','status'], axis=1)
-        # sheety_endpoint = os.environ.get('SHEETY_ENDPOINT')
-        # sheety_user = os.environ.get('SHEETY_USER')
-        # sheety_password = os.environ.get('SHEETY_PASSWORD')
-        # sheet_headers = HTTPBasicAuth(username=sheety_user, password=sheety_password)
+        for n in range(0, len(system_df)):
+            # print(system_df.loc[n]['id'])
+            line_update = Specification.query.get(int(system_df.loc[n]['id']))
+            line_update.object = request.form.get("objectname")
+            line_update.object_address = request.form.get("objectaddress")
+            db.session.commit()
+
+        updated_system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
+        system_to_send_df = updated_system_df.drop(columns=['author_id','id','status','send_date'], axis=1)
         filename = f'{request.form.get("objectname")}_{current_user.name}_{sys}_{date.today()}'
         system_to_send_df.to_excel(f'static/files/specifications/{filename}.xlsx')
-        # for n in range(0, len(system_df)):
-            # print(system_df.loc[n]['id'])
-            # sheet_params = {
-            #     "клиенту": {
-            #         "system": sys,
-            #         "supportname": system_df.loc[n]['support_name'],
-            #         "description": system_df.loc[n]['description'],
-            #         "numberofsupports": system_df.loc[n]['number_of_supports'],
-            #         "date": system_df.loc[n]['date'],
-            #         "status": "Отправлено",
-            #         "object": request.form.get("objectname"),
-            #         "address": request.form.get("objectaddress")
-            #         }
-            # }
-            # response_sheet = requests.post(url=sheety_endpoint, json=sheet_params, auth=sheet_headers)
-            # # print(response_sheet.text)
+
         return send_from_directory('static', f"files/specifications/{filename}.xlsx")
-
-    # return render_template("send.html", logged_in=current_user.is_authenticated, sys=sys)
-
-
-        # # добавляем к имени название объекта и переводим в формат xlsx
-        # name_of_file = f'{current_user.name}_{translated_system}.csv'
-        # final_filename = f'{object_name}_{current_user.name}_{translated_system}'
-        # pd.read_csv(name_of_file, sep=",", encoding="utf8").to_excel(final_filename + '.xlsx', index=None)
-        # filepath = final_filename + '.xlsx'  # Имя файла в абсолютном или относительном формате
-        # recipients = [current_user.email, addr_to]
-        # mail_coding = "windows-1251"
-        # msg = MIMEMultipart()  # Создаем сообщение
-        # msg['From'] = Header(current_user.email, mail_coding)  # Адресат
-        # msg['To'] = Header(", ".join(recipients), mail_coding)  # Получатель
-        # msg['Subject'] = Header('Спецификация HILTI', mail_coding)  # Тема сообщения
-        # body = f"Спецификация на cистемy: {translated_system.lower()}.\n" \
-        #        f"Объект: {object_name}.\n" \
-        #        f"Адрес объекта: {object_address}.\n" \
-        #        f"Проектировщик: {current_user.name}.\n" \
-        #        f"Компания: {current_user.company}."
-        #
-        # msg.attach(MIMEText(body, 'plain', mail_coding))
-        # attach_file(msg, filepath)
-        #
-        # with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
-        #     connection.starttls()
-        #     connection.login(user=addr_to, password=password)
-        #     connection.send_message(msg)
-        #
-        # os.remove(name_of_file)
-        # os.remove(final_filename + '.xlsx')
 
 
 @app.route('/backet/<string:sys>/delete_all>', methods=["GET", "POST"])
@@ -419,10 +351,12 @@ def delete_all(sys):
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
     system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
     for n in range(0, len(system_df)):
-        # print(system_df.loc[n]['id'])
         line_to_update = Specification.query.get(int(system_df.loc[n]['id']))
         line_to_update.status = "Отправлено"
+        line_to_update.send_date = date.today().strftime("%d/%m/%Y")
         db.session.commit()
+    # os.remove(name_of_file)
+    # os.remove(final_filename + '.xlsx')
     return redirect(url_for('choose_support_system', sys=sys, logged_in=current_user.is_authenticated))
 
 #декоратор для доступа к странице только админа (id=1)
