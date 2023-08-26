@@ -1,4 +1,3 @@
-# from models import User, Specification
 from flask import Flask, render_template, request, url_for, redirect, flash, abort, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -10,6 +9,7 @@ from forms import ChooseSystemForm, VentForm, HotWaterForm, SprinklerForm, ColdW
 import os
 import pandas as pd
 from selection_functions import vent_support, attach_file
+from functions import connection_to_postgress
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -19,6 +19,7 @@ from xlsxwriter.workbook import Workbook
 from functools import wraps
 import requests
 from requests.auth import HTTPBasicAuth
+import psycopg2
 
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -29,7 +30,6 @@ Bootstrap(app)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
-#postgres://support_user_database_user:6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u@dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com/support_user_database
 # 'BD_ROOT',
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -64,8 +64,8 @@ class User(UserMixin, db.Model):
     spec = relationship("Specification", back_populates="author")
     is_authenticated = UserMixin
 
-systems = ['hot_water', 'cold_water', 'sprinkler', 'ventilation', 'radial_fans', 'roof_equipment']
-systems_trans = ['Трубопроводы с температурным расширением (отопление, ГВ)',
+SYSTEMS = ['hot_water', 'cold_water', 'sprinkler', 'ventilation', 'radial_fans', 'roof_equipment']
+SYSTEMS_TRANS = ['Трубопроводы с температурным расширением (отопление, ГВ)',
                'Трубопроводы без температурного расширения (ХВ, канализация)',
                 'Спринклерное пожаротушение',
                'Вентиляция',
@@ -198,7 +198,7 @@ def choose_support_system():
 
 @app.route("/support_system/<string:sys>", methods=["GET", "POST"])
 def choose_system_parameters(sys):
-    translated_system = systems_trans[systems.index(sys)]
+    translated_system = SYSTEMS_TRANS[SYSTEMS.index(sys)]
     if sys == 'ventilation':
         param_form = VentForm()
     else:
@@ -267,10 +267,12 @@ def backet():
     # print(spec_df.groupby('system').value_counts())
     # print(spec_df[spec_df['system']=='Вентиляция'])
     not_empty_systems = []
-    for sys in systems_trans:
-        specifications = sqlite3.connect('instance/users.db')
-        spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
-        system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')]
+    specifications = psycopg2.connect(dbname="support_user_database", host="dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com", user="support_user_database_user", password="6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u", port="5432")
+    spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
+    for sys in SYSTEMS_TRANS:
+        system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе') & (spec_df['author_id'] == current_user.id)]
+        # dbname = "support_user_database", host = "dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com", user = "support_user_database_user", password = "6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u", port = "5432"
+        # specifications = psycopg2.connect('os.environ.get("DATABASE_URL")/users.db')
         # print(system_df)
         if len(system_df) > 0:
             not_empty_systems.append(sys)
@@ -284,14 +286,14 @@ def backet():
 
 @app.route("/backet/<string:sys>", methods=["GET", "POST"])
 def backet_per_system(sys):
-    specifications = sqlite3.connect('instance/users.db')
-    spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
-    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
-    print(system_df.id)
-    # for n in system_df:
-    #     id_list.append(system_df.id)
-    print(len(system_df))
-    if len(system_df) == 0:
+    print(current_user.id)
+    # specifications = sqlite3.connect('instance/users.db')
+    db_length = connection_to_postgress(sys, current_user)[0]
+    system_df = connection_to_postgress(sys, current_user)[1]
+
+    # print(system_df)
+    # print(len(system_df))
+    if db_length == 0:
         flash(f'Корзина пуста. Добавьте опоры.')
         return redirect(url_for('choose_support_system', logged_in=current_user.is_authenticated))
     # print(system_df.columns)
@@ -310,7 +312,7 @@ def backet_per_system(sys):
     #     flash(f'Корзина пуста. Добавьте опоры.')
     #     return redirect(url_for('choose_system_parameters', sys=sys, logged_in=current_user.is_authenticated))
     return render_template("backet_per_system.html", logged_in=current_user.is_authenticated, supp_data=system_df,
-                           len_of_df=len(system_df), current_system=sys)
+                           len_of_df=db_length, current_system=sys)
 
 
 @app.route('/backet/<string:sys>/delete', methods=["GET", "POST"])
@@ -326,9 +328,13 @@ def delete_support(sys):
 
 @app.route('/backet/<string:sys>/send', methods=["GET", "POST"])
 def send(sys):
-    specifications = sqlite3.connect('instance/users.db')
+    specifications = psycopg2.connect(dbname="support_user_database",
+                                      host="dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com",
+                                      user="support_user_database_user",
+                                      password="6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u",
+                                      port="5432")
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
-    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
+    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе') & (spec_df['author_id'] == current_user.id)].reset_index(drop=True)
     if request.method == 'POST':
         for n in range(0, len(system_df)):
             # print(system_df.loc[n]['id'])
@@ -336,9 +342,11 @@ def send(sys):
             line_update.object = request.form.get("objectname")
             line_update.object_address = request.form.get("objectaddress")
             db.session.commit()
+            system_df.at[n, 'object'] = request.form.get("objectname")
+            system_df.at[n, 'object_address'] = request.form.get("objectaddress")
 
-        updated_system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
-        system_to_send_df = updated_system_df.drop(columns=['author_id','id','status','send_date'], axis=1)
+        print(system_df)
+        system_to_send_df = system_df.drop(columns=['author_id','id','status','send_date'], axis=1)
         filename = f'{request.form.get("objectname")}_{current_user.name}_{sys}_{date.today()}'
         system_to_send_df.to_excel(f'static/files/specifications/{filename}.xlsx')
 
@@ -347,9 +355,13 @@ def send(sys):
 
 @app.route('/backet/<string:sys>/delete_all>', methods=["GET", "POST"])
 def delete_all(sys):
-    specifications = sqlite3.connect('instance/users.db')
+    specifications = psycopg2.connect(dbname="support_user_database",
+                                      host="dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com",
+                                      user="support_user_database_user",
+                                      password="6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u",
+                                      port="5432")
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
-    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')].reset_index(drop=True)
+    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')& (spec_df['author_id'] == current_user.id)].reset_index(drop=True)
     for n in range(0, len(system_df)):
         line_to_update = Specification.query.get(int(system_df.loc[n]['id']))
         line_to_update.status = "Отправлено"
@@ -358,6 +370,8 @@ def delete_all(sys):
     # os.remove(name_of_file)
     # os.remove(final_filename + '.xlsx')
     return redirect(url_for('choose_support_system', sys=sys, logged_in=current_user.is_authenticated))
+
+
 
 #декоратор для доступа к странице только админа (id=1)
 def admin_only(f):
