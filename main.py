@@ -59,10 +59,20 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
-    name = db.Column(db.String(1000))
+    name = db.Column(db.String(100))
     company = db.Column(db.String(1000))
     spec = relationship("Specification", back_populates="author")
     is_authenticated = UserMixin
+
+class Comments(db.Model):
+    __tablename__ = "comments"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True)
+    phone = db.Column(db.String(100), unique=True)
+    message = db.Column(db.String(1500), nullable=False)
+    date = db.Column(db.String(250), nullable=False)
+
 
 SYSTEMS = ['hot_water', 'cold_water', 'sprinkler', 'ventilation', 'radial_fans', 'roof_equipment']
 SYSTEMS_TRANS = ['Трубопроводы с температурным расширением (отопление, ГВ)',
@@ -142,19 +152,29 @@ def login():
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     if request.method == "POST":
-        name = request.form["username"]
-        email = request.form["email"]
-        phone_number = request.form["phone"]
-        message = request.form["message"]
+        input_name = request.form["username"]
+        input_email = request.form["email"]
+        input_phone_number = request.form["phone"]
+        input_message = request.form["message"]
 
-        body = f"Имя: {name}.\n" \
-               f"Email: {email}.\n" \
-               f"Телефон: {phone_number}.\n" \
-               f"Сообщение: {message}."
-        msg = MIMEText(body)
-        msg['Subject'] = 'Обратная связь'
-        msg['From'] = f"postmaster@{domain_name}"
-        msg['To'] = "shchekalina@gmail.com"
+        new_comment = Comments(
+            name=input_name,
+            email=input_email,
+            phone=input_phone_number,
+            message=input_message,
+            date=date.today().strftime("%d/%m/%Y")
+        )
+
+        db.session.add(new_comment)
+        db.session.commit()
+        # body = f"Имя: {name}.\n" \
+        #        f"Email: {email}.\n" \
+        #        f"Телефон: {phone_number}.\n" \
+        #        f"Сообщение: {message}."
+        # msg = MIMEText(body)
+        # msg['Subject'] = 'Обратная связь'
+        # msg['From'] = f"postmaster@{domain_name}"
+        # msg['To'] = "shchekalina@gmail.com"
 
         # with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
         #     connection.starttls()
@@ -163,14 +183,14 @@ def contact():
         #         from_addr=email,
         #         to_addrs=addr_to,
         #         msg=msg.as_string())
-        with smtplib.SMTP('smtp.mailgun.org', port=587) as connection:
-            connection.starttls()
-            connection.login(user=f'postmaster@{domain_name}',
-                             password=os.environ.get('MAILGUN_PASSWORD'))
-            connection.sendmail(
-                msg['From'],
-                msg['To'],
-                msg.as_string())
+        # with smtplib.SMTP('smtp.mailgun.org', port=587) as connection:
+        #     connection.starttls()
+        #     connection.login(user=f'postmaster@{domain_name}',
+        #                      password=os.environ.get('MAILGUN_PASSWORD'))
+        #     connection.sendmail(
+        #         msg['From'],
+        #         msg['To'],
+        #         msg.as_string())
 
         return render_template("contact.html", logged_in=current_user.is_authenticated, msg_sent=True)
     return render_template("contact.html", logged_in=current_user.is_authenticated, msg_sent=False)
