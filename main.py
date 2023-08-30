@@ -8,14 +8,9 @@ from datetime import date
 from forms import ChooseSystemForm, VentForm, HotWaterForm, SprinklerForm, ColdWaterForm, RadialFanForm, RoofVentForm
 import os
 import pandas as pd
-from selection_functions import vent_support, attach_file
+from selection_functions import vent_support
 from functions import connection_to_postgress
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.header import Header
 from dotenv import load_dotenv
-from xlsxwriter.workbook import Workbook
 from functools import wraps
 import requests
 from requests.auth import HTTPBasicAuth
@@ -68,8 +63,8 @@ class Comments(db.Model):
     __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    email = db.Column(db.String(100), unique=True)
-    phone = db.Column(db.String(100), unique=True)
+    email = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(100))
     message = db.Column(db.String(1500), nullable=False)
     date = db.Column(db.String(250), nullable=False)
 
@@ -164,36 +159,11 @@ def contact():
             message=input_message,
             date=date.today().strftime("%d/%m/%Y")
         )
-
         db.session.add(new_comment)
         db.session.commit()
-        # body = f"Имя: {name}.\n" \
-        #        f"Email: {email}.\n" \
-        #        f"Телефон: {phone_number}.\n" \
-        #        f"Сообщение: {message}."
-        # msg = MIMEText(body)
-        # msg['Subject'] = 'Обратная связь'
-        # msg['From'] = f"postmaster@{domain_name}"
-        # msg['To'] = "shchekalina@gmail.com"
 
-        # with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
-        #     connection.starttls()
-        #     connection.login(user=addr_to, password=password)
-        #     connection.sendmail(
-        #         from_addr=email,
-        #         to_addrs=addr_to,
-        #         msg=msg.as_string())
-        # with smtplib.SMTP('smtp.mailgun.org', port=587) as connection:
-        #     connection.starttls()
-        #     connection.login(user=f'postmaster@{domain_name}',
-        #                      password=os.environ.get('MAILGUN_PASSWORD'))
-        #     connection.sendmail(
-        #         msg['From'],
-        #         msg['To'],
-        #         msg.as_string())
-
-        return render_template("contact.html", logged_in=current_user.is_authenticated, msg_sent=True)
-    return render_template("contact.html", logged_in=current_user.is_authenticated, msg_sent=False)
+        return render_template("contact.html", msg_sent=True)
+    return render_template("contact.html", msg_sent=False)
 
 
 @app.route('/logout')
@@ -254,7 +224,6 @@ def choose_system_parameters(sys):
                 support_name = vent[0]
                 number_of_supports = vent[1]
                 support_description = vent[2]
-                name_of_columns = vent[3]
                 print(f'{support_name}, {number_of_supports}, {support_description}')
                 flash(f'Опора добавлена.')
 
@@ -269,14 +238,7 @@ def choose_system_parameters(sys):
             )
             db.session.add(new_specification)
             db.session.commit()
-        # try:
-        #     with open(name_of_file, "r", encoding="utf-8-sig"):
-        #         with open(name_of_file, "a", encoding="utf-8-sig") as csv_file:
-        #             csv_file.write(f"{translated_system},{support_name},{number_of_supports},{support_description}\n")
-        # except FileNotFoundError:
-        #     with open(name_of_file, "a", encoding="utf-8-sig") as csv_file:
-        #         csv_file.write(f"Система,Номер опоры,Количество опор,{name_of_columns}\n")
-        #         csv_file.write(f"{translated_system},{support_name},{number_of_supports},{support_description}\n")
+
         return redirect(url_for('choose_system_parameters', logged_in=current_user.is_authenticated, form=param_form, sys=sys))
 
     return render_template(f'{sys}.html', logged_in=current_user.is_authenticated, form=param_form, system=sys)
@@ -284,20 +246,19 @@ def choose_system_parameters(sys):
 
 @app.route("/backet", methods=["GET", "POST"])
 def backet():
-    # print(spec_df.groupby('system').value_counts())
-    # print(spec_df[spec_df['system']=='Вентиляция'])
     not_empty_systems = []
-    specifications = psycopg2.connect(dbname="support_user_database", host="dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com", user="support_user_database_user", password="6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u", port="5432")
+    specifications = psycopg2.connect(dbname="support_user_database", host=os.environ.get('DB_HOST'), user="support_user_database_user", password=os.environ.get('DB_PASSWORD'), port="5432")
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
     for sys in SYSTEMS_TRANS:
         system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе') & (spec_df['author_id'] == current_user.id)]
-        # dbname = "support_user_database", host = "dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com", user = "support_user_database_user", password = "6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u", port = "5432"
-        # specifications = psycopg2.connect('os.environ.get("DATABASE_URL")/users.db')
-        # print(system_df)
         if len(system_df) > 0:
             not_empty_systems.append(sys)
         else:
             continue
+
+    if len(not_empty_systems) == 0:
+        flash(f'Корзина пуста. Добавьте опоры.')
+        return redirect(url_for('choose_support_system', logged_in=current_user.is_authenticated))
     # print(not_empty_systems)
 
     return render_template("backet.html", logged_in=current_user.is_authenticated, not_empty_systems=not_empty_systems,
@@ -306,33 +267,10 @@ def backet():
 
 @app.route("/backet/<string:sys>", methods=["GET", "POST"])
 def backet_per_system(sys):
-    print(current_user.id)
-    # specifications = sqlite3.connect('instance/users.db')
-    db_length = connection_to_postgress(sys, current_user)[0]
-    system_df = connection_to_postgress(sys, current_user)[1]
-
-    # print(system_df)
-    # print(len(system_df))
-    if db_length == 0:
-        flash(f'Корзина пуста. Добавьте опоры.')
-        return redirect(url_for('choose_support_system', logged_in=current_user.is_authenticated))
-    # print(system_df.columns)
-    # print(system_df.loc[3]['support_name'])
-
-    # name_of_file = f'{current_user.name}_{translated_system}.csv'
-    # try:
-    #     with open(name_of_file, encoding="utf-8-sig") as csv_file:
-    #         df = pd.read_csv(csv_file, delimiter=',')
-    #         description_df = df.drop(columns=['Система','Номер опоры','Количество опор'], axis=1)
-    #         description_df_columns_number = int(description_df.shape[1])
-    #         if len(df) == 0:
-    #             flash(f'Корзина пуста. Добавьте опоры.')
-    #             return redirect(url_for('choose_support_system', logged_in=current_user.is_authenticated))
-    # except FileNotFoundError:
-    #     flash(f'Корзина пуста. Добавьте опоры.')
-    #     return redirect(url_for('choose_system_parameters', sys=sys, logged_in=current_user.is_authenticated))
+    # print(current_user.id)
+    system_df = connection_to_postgress(sys, current_user)
     return render_template("backet_per_system.html", logged_in=current_user.is_authenticated, supp_data=system_df,
-                           len_of_df=db_length, current_system=sys)
+                           len_of_df=len(system_df), current_system=sys)
 
 
 @app.route('/backet/<string:sys>/delete', methods=["GET", "POST"])
@@ -348,13 +286,7 @@ def delete_support(sys):
 
 @app.route('/backet/<string:sys>/send', methods=["GET", "POST"])
 def send(sys):
-    specifications = psycopg2.connect(dbname="support_user_database",
-                                      host="dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com",
-                                      user="support_user_database_user",
-                                      password="6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u",
-                                      port="5432")
-    spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
-    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе') & (spec_df['author_id'] == current_user.id)].reset_index(drop=True)
+    system_df = connection_to_postgress(sys, current_user)
     if request.method == 'POST':
         for n in range(0, len(system_df)):
             # print(system_df.loc[n]['id'])
@@ -375,13 +307,7 @@ def send(sys):
 
 @app.route('/backet/<string:sys>/delete_all>', methods=["GET", "POST"])
 def delete_all(sys):
-    specifications = psycopg2.connect(dbname="support_user_database",
-                                      host="dpg-civ600diuiedpv0lrnm0-a.oregon-postgres.render.com",
-                                      user="support_user_database_user",
-                                      password="6giJ3AG6hvMP8DoMyvx1LYooCJA35j2u",
-                                      port="5432")
-    spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
-    system_df = spec_df.loc[(spec_df['system'] == sys) & (spec_df['status'] == 'В работе')& (spec_df['author_id'] == current_user.id)].reset_index(drop=True)
+    system_df = connection_to_postgress(sys, current_user)
     for n in range(0, len(system_df)):
         line_to_update = Specification.query.get(int(system_df.loc[n]['id']))
         line_to_update.status = "Отправлено"
@@ -390,7 +316,6 @@ def delete_all(sys):
     # os.remove(name_of_file)
     # os.remove(final_filename + '.xlsx')
     return redirect(url_for('choose_support_system', sys=sys, logged_in=current_user.is_authenticated))
-
 
 
 #декоратор для доступа к странице только админа (id=1)
