@@ -25,7 +25,6 @@ Bootstrap(app)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
-# 'BD_ROOT',
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app, engine_options={"pool_pre_ping": True})
 login_manager = LoginManager()
@@ -297,8 +296,9 @@ def send(sys):
             system_df.at[n, 'object'] = request.form.get("objectname")
             system_df.at[n, 'object_address'] = request.form.get("objectaddress")
 
-        print(system_df)
+        # print(system_df)
         system_to_send_df = system_df.drop(columns=['author_id','id','status','send_date'], axis=1)
+        system_to_send_df.columns = ['Система', 'Наименование опоры', 'Описание', 'Количество опор','Дата','Объект', 'Адрес объекта']
         filename = f'{request.form.get("objectname")}_{current_user.name}_{sys}_{date.today()}'
         system_to_send_df.to_excel(f'static/files/specifications/{filename}.xlsx')
 
