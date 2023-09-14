@@ -56,8 +56,8 @@ class ColdWaterForm(FlaskForm):
 
 class SprinklerForm(FlaskForm):
     base_material = SelectField('Крепление к:', choices=base_materials)
-    direction_type = SelectField('Тип разводки:', choices=direction)
-    pipe_type = SelectField('Тип трубы:', choices=pipe_type)
+    direction_type = SelectField('Тип разводки:', choices=['Горизонтальная/потолок'])
+    pipe_type = SelectField('Тип трубы:', choices=['Стальная труба'])
     diameter = StringField(label='Диаметр трубы, мм', validators=[DataRequired()])
     length = StringField(label='Длина трассы, м', validators=[DataRequired()])
     submit = SubmitField(label="Добавить")

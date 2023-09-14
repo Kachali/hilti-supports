@@ -8,7 +8,7 @@ from datetime import date
 from forms import ChooseSystemForm, VentForm, HotWaterForm, SprinklerForm, ColdWaterForm, RadialFanForm, RoofVentForm
 import os
 import pandas as pd
-from selection_functions import vent_support
+from selection_functions import vent_support, sprinkler_support
 from functions import connection_to_postgress
 from dotenv import load_dotenv
 from functools import wraps
@@ -190,10 +190,10 @@ def choose_system_parameters(sys):
     translated_system = SYSTEMS_TRANS[SYSTEMS.index(sys)]
     if sys == 'ventilation':
         param_form = VentForm()
+    elif sys == 'sprinkler':
+        param_form = SprinklerForm()
     else:
         return 'Страница в разработке'
-    # elif sys == 'sprinkler':
-    #     param_form = SprinklerForm()
     # elif sys == 'cold_water':
     #     param_form = ColdWaterForm()
     # elif sys == 'hot_water':
@@ -213,30 +213,36 @@ def choose_system_parameters(sys):
             'parameters': parameters
         }
         if sys == 'ventilation':
-            vent = vent_support(choices)
-            #Это условие может быть разным в зависимости от системы
-            if not vent:
-                flash(f'Недопустимые данные. Попробуйте еще раз.\nПри возникновении вопросов, обратитесь к специалисту компании HILTI.')
-                return redirect(url_for('choose_system_parameters', sys=sys, logged_in=current_user.is_authenticated))
-            # Это условие по идее не должно меняться
-            else:
-                support_name = vent[0]
-                number_of_supports = vent[1]
-                support_description = vent[2]
-                print(f'{support_name}, {number_of_supports}, {support_description}')
-                flash(f'Опора добавлена.')
+            current_system = vent_support(choices)
 
-            new_specification = Specification(
-                system=translated_system,
-                support_name=support_name,
-                description=support_description,
-                number_of_supports=number_of_supports,
-                date=date.today().strftime("%d/%m/%Y"),
-                author=current_user,
-                status='В работе'
-            )
-            db.session.add(new_specification)
-            db.session.commit()
+        elif sys == 'sprinkler':
+            current_system = sprinkler_support(choices)
+
+        # print(f'это {current_system}')
+        #Это условие может быть разным в зависимости от системы
+        if not current_system:
+            flash(f'Недопустимые данные. Попробуйте еще раз.\nПри возникновении вопросов, обратитесь к специалисту компании HILTI.')
+            return redirect(url_for('choose_system_parameters', sys=sys, logged_in=current_user.is_authenticated))
+        # Это условие по идее не должно меняться
+        else:
+            support_name = current_system[0]
+            number_of_supports = current_system[1]
+            support_description = current_system[2]
+            print(f'{support_name}, {number_of_supports}, {support_description}')
+            flash(f'Опора добавлена.')
+
+
+        new_specification = Specification(
+            system=translated_system,
+            support_name=support_name,
+            description=support_description,
+            number_of_supports=number_of_supports,
+            date=date.today().strftime("%d/%m/%Y"),
+            author=current_user,
+            status='В работе'
+        )
+        db.session.add(new_specification)
+        db.session.commit()
 
         return redirect(url_for('choose_system_parameters', logged_in=current_user.is_authenticated, form=param_form, sys=sys))
 
