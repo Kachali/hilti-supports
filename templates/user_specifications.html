@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="box">
+	<h2>Спецификации пользователя: </h2>
+    <h4>{{user.name}}, {{ user.company }}, {{ user.email }}, id={{user.id}}</h4>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>id</th>
+<!--                    <th>id автора для контроля</th>-->
+                    <th>Система</th>
+                    <th>Наименование опоры</th>
+                    <th>Описание</th>
+                    <th>Количество опор</th>
+                    <th>Дата создания</th>
+                    <th>Статус</th>
+                    <th>Имя объекта</th>
+                    <th>Адрес объекта</th>
+                    <th>Дата отправки</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in range(0, len_of_df) %}
+                    <tr>
+                    <td>{{ specifications.loc[n]['id'] }}</td>
+<!--                    <td>{{ specifications.loc[n]['author_id'] }}</td>-->
+                    <td>{{ specifications.loc[n]['system'] }}</td>
+                    <td>{{ specifications.loc[n]['support_name'] }}</td>
+                    <td>{{ specifications.loc[n]['description'] }}</td>
+                    <td>{{ specifications.loc[n]['number_of_supports'] }}</td>
+                     <td>{{ specifications.loc[n]['date'] }}</td>
+                     <td>{{ specifications.loc[n]['status'] }}</td>
+                     <td>{{ specifications.loc[n]['object'] }}</td>
+                     <td>{{ specifications.loc[n]['object_address'] }}</td>
+                     <td>{{ specifications.loc[n]['send_date'] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}

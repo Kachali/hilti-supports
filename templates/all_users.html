@@ -2,16 +2,32 @@
 {% block content %}
 
 <div class="box">
-	<h1>Все пользователи</h1>
-    <ul>
-        {% for user in users: %}
-        <li>
-            <a href="{{ url_for('delete_user', id=user.id) }}">Удалить</a>
-            {{ user.name }} - {{ user.company }} - {{ user.email }} - {{ user.password }}
-        </li>
-        {% endfor %}
-    </ul>
-
+	<h2>Все пользователи</h2>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Компания</th>
+                    <th>Почтовый адрес</th>
+                    <th>Пароль</th>
+                    <th>Ссылка на спецификации</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users: %}
+                    <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.company }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.password }}</td>
+                    <td><a href="{{ url_for('specification_per_user', id=user.id) }}">Все спецификации</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+
 
 {% endblock %}

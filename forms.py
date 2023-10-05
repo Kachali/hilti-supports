@@ -63,14 +63,17 @@ class SprinklerForm(FlaskForm):
     submit = SubmitField(label="Добавить")
 
 class RadialFanForm(FlaskForm):
-    roof_material = StringField(label='Тип кровли')
-    city = StringField(label='Город строительства', validators=[DataRequired()])
-    height = StringField(label='Высотная отметка кровли, м', validators=[DataRequired()])
+    # roof_material = StringField(label='Тип кровли')
+    # city = StringField(label='Город строительства', validators=[DataRequired()])
+    wind_zone = SelectField('Ветровой район:', choices=['I','II'])
+    snow_zone = SelectField('Снеговой район:', choices=['III'])
+    manufactured_by = SelectField('Производитель:', choices=['ВЕЗА', 'VKT', 'НЗВЗ', 'KORF', 'NED'])
+    height = StringField(label='Высотная отметка кровли (не более 60м), м')
     fan_length = StringField(label='Длина установки, мм', validators=[DataRequired()])
     fan_width = StringField(label='Ширина установки, мм', validators=[DataRequired()])
     fan_height = StringField(label='Высота установки, мм', validators=[DataRequired()])
     fan_weight = StringField(label='Вес оборудования, кг', validators=[DataRequired()])
-    space = StringField(label='Расстояние от кровли до оборудования, мм', validators=[DataRequired()])
+    space = SelectField(label='Расстояние от кровли до оборудования, мм', choices=['75','500'])
     submit = SubmitField(label="Добавить")
 
 class RoofVentForm(FlaskForm):

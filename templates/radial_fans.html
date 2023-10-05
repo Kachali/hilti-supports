@@ -1,12 +1,13 @@
 {% extends "base.html" %}
+{% block title %}Радиальные вентиляторы{% endblock %}
 {% block content %}
 
 <div class="box">
-	<h1>Оборудование на кровле</h1>
+	<h1>Крепление радиальных вентиляторов на кровле</h1>
 	{% with messages = get_flashed_messages() %}
 		{% if messages %}
    			{% for message in messages %}
-         		<p>{{ message }}</p>
+         		<p style="color:red">{{ message }}</p>
         	{% endfor %}
       	{% endif %}
     {% endwith %}
