@@ -358,13 +358,12 @@ def delete_user():
 def specification_per_user():
     user_id = request.args.get('id')
     needed_user = User.query.get(user_id)
-    print(needed_user)
     specifications = psycopg2.connect(dbname="support_user_database", host=os.environ.get('DB_HOST'),
                                       user="support_user_database_user", password=os.environ.get('DB_PASSWORD'),
                                       port="5432")
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
     all_user_spec_df = spec_df.loc[(spec_df['author_id'] == needed_user.id)].reset_index(drop=True)
-    print(all_user_spec_df)
+    # print(all_user_spec_df)
     return render_template("user_specifications.html", user=needed_user, specifications=all_user_spec_df, len_of_df=len(all_user_spec_df))
 
 
