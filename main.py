@@ -76,15 +76,8 @@ SYSTEMS_TRANS = ['Трубопроводы с температурным рас�
                "Оборудование на кровле",
                 "Обвязка по кровле"]
 
-# addr_from = current_user.email
-addr_to = os.environ.get('CONSTRUCTOR_EMAIL')
-password = os.environ.get('GMAIL_PASSWORD')
-domain_name = os.environ.get('YOUR_DOMAIN_NAME')
-
 
 # list_of_forms = [HotWaterForm(), ColdWaterForm(), SprinklerForm(), VentForm(), RadialFanForm(), RoofVentForm]
-# SPECIFICATIONS = sqlite3.connect('instance/users.db')
-# SPEC_DF = pd.read_sql_query("SELECT * FROM specifications", SPECIFICATIONS)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -161,8 +154,8 @@ def contact():
         db.session.add(new_comment)
         db.session.commit()
 
-        return render_template("contact.html", msg_sent=True)
-    return render_template("contact.html", msg_sent=False)
+        return render_template("contact.html", msg_sent=True, logged_in=current_user.is_authenticated)
+    return render_template("contact.html", msg_sent=False, logged_in=current_user.is_authenticated)
 
 
 @app.route('/logout')
@@ -230,7 +223,7 @@ def choose_system_parameters(sys):
             support_name = current_system[0]
             number_of_supports = current_system[1]
             support_description = current_system[2]
-            print(f'{support_name}, {number_of_supports}, {support_description}')
+            # print(f'{support_name}, {number_of_supports}, {support_description}')
             flash(f'Опора добавлена.')
 
 
@@ -283,9 +276,9 @@ def backet_per_system(sys):
 @app.route('/backet/<string:sys>/delete', methods=["GET", "POST"])
 def delete_support(sys):
     support_id = request.args.get('id')
-    print(f'id = {support_id}, {type(support_id)}')
+    # print(f'id = {support_id}, {type(support_id)}')
     support_to_delete = Specification.query.get(support_id)
-    print(support_to_delete)
+    # print(support_to_delete)
     db.session.delete(support_to_delete)
     db.session.commit()
     return redirect(url_for('backet_per_system', sys=sys, logged_in=current_user.is_authenticated))
@@ -344,14 +337,6 @@ def show_users():
         all_users = db.session.query(User).all()
     return render_template("all_users.html", logged_in=current_user.is_authenticated, users=all_users)
 
-@app.route('/delete_user')
-@admin_only
-def delete_user():
-    user_id = request.args.get('id')
-    user_to_delete = User.query.get(user_id)
-    db.session.delete(user_to_delete)
-    db.session.commit()
-    return redirect(url_for('show_users'))
 
 @app.route('/user_specifications')
 @admin_only
@@ -364,7 +349,7 @@ def specification_per_user():
     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
     all_user_spec_df = spec_df.loc[(spec_df['author_id'] == needed_user.id)].reset_index(drop=True)
     # print(all_user_spec_df)
-    return render_template("user_specifications.html", user=needed_user, specifications=all_user_spec_df, len_of_df=len(all_user_spec_df))
+    return render_template("user_specifications.html", logged_in=current_user.is_authenticated, user=needed_user, specifications=all_user_spec_df, len_of_df=len(all_user_spec_df), admin=True)
 
 
 with app.app_context():
