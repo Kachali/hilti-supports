@@ -217,7 +217,7 @@ def hot_water_supports(support):
     isolation = support["parameters"]["isolation"]
     length = int(support["parameters"]["length"])
     # print(base_material, direction_type, mounting, distance, pipe_number, support_type)
-    with open("static/files/Трубы с температурным расширением.csv", "r") as file:
+    with open("static/files/Трубы с температурным расширением.csv", "r", encoding="Windows-1251") as file:
         data = pd.read_csv(file, delimiter=";")
         print(data.columns, data.shape)
         support_num = data.loc[
