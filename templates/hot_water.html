@@ -16,12 +16,15 @@
 		<table class="table-wrapper">
 			<thead>
 				<tr>
-					{% for field in form if field.name in ['base_material', 'direction_type', 'system', 'pipe_type'] %}
-					<th class="col-2 col-12-xsmall">{{ field.label }}</th>
-					{% endfor %}
-					{% for field in form if field.name not in ['base_material', 'direction_type', 'system', 'pipe_type', 'submit', 'csrf_token'] %}
-					<th class="col-1 col-12-xsmall">{{ field.label }}</th>
-					{% endfor %}
+<!--					{% for field in form if field.name in ['base_material', 'direction_type', 'system', 'pipe_type', 'support_type'] %}-->
+<!--					<th class="col-2 col-12-xsmall">{{ field.label }}</th>-->
+<!--					{% endfor %}-->
+<!--					{% for field in form if field.name not in ['base_material', 'direction_type', 'system', 'pipe_type', 'support_type', 'submit', 'csrf_token'] %}-->
+<!--					<th class="col-1 col-12-xsmall">{{ field.label }}</th>-->
+<!--					{% endfor %}-->
+					{% for field in form if field.name not in ['submit', 'csrf_token']%}
+						<th class="col-2 col-12-xsmall">{{ field.label }}</th>
+						{% endfor %}
 				</tr>
 
 			</thead>

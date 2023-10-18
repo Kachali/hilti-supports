@@ -11,9 +11,9 @@
         	{% endfor %}
       	{% endif %}
     {% endwith %}
-
-	{{ wtf.quick_form(form) }}
-
+	<form action="" method="post" class="form">
+		{{ wtf.quick_form(form) }}
+	</form>
 </div>
 
 {% endblock %}
