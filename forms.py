@@ -12,6 +12,14 @@ base_materials = [
     "Ребристые плиты перекрытия",
     "Профилированный лист",
 ]
+base_materials_vent = [
+    "Железобетон/кирпич",
+    "Металлоконструкции (швеллер)",
+    "Металлоконструкции (двутавр)",
+    "Металлоконструкции (прямоуг. труба)",
+    "Профлист",
+]
+
 base_materials_hot_water = [
     "Железобетон",
     "Металлоконструкции (швеллер)",
@@ -54,7 +62,6 @@ direction = [
     "Вертикальная/потолок",
     "Вертикальная/стена",
 ]
-duct_type = ["Круглый", "Прямоугольный"]
 heating_type = ["Отопление", "Горячее водоснабжение", "Другое"]
 cold_water_type = ["Холодное водоснабжение", "Канализация"]
 pipe_type = [
@@ -111,9 +118,10 @@ class ChooseSystemForm(FlaskForm):
 
 
 class VentForm(FlaskForm):
-    base_material = SelectField("Крепление к:", choices=base_materials)
-    direction_type = SelectField("Тип разводки:", choices=direction)
-    duct_type = SelectField("Тип воздуховода:", choices=duct_type)
+    base_material = SelectField("Крепление к:", choices=base_materials_vent)
+    direction_type = SelectField("Тип разводки:", choices=["Горизонтальный", "Вертикальный"])
+    mounting = SelectField("Крепеление к:", choices=["Потолок", "Стена"])
+    duct_type = SelectField("Тип воздуховода:", choices=["Круглый", "Прямоугольный"])
     # through_fastening = SelectField('Возможно ли крепление насквозь:', choices=['нет','да'])
     diameter = StringField(label="Диаметр/ширина воздуховода, мм")
     # height = StringField(label='Высота воздуховода, мм')
@@ -195,7 +203,7 @@ class RoofVentForm(FlaskForm):
     height = StringField(
         label="Высотная отметка кровли, м", validators=[DataRequired()]
     )
-    duct_type = SelectField("Тип воздуховода:", choices=duct_type)
+    duct_type = SelectField("Тип воздуховода:", choices=["Круглый", "Прямоугольный"])
     diameter = StringField(
         label="Диаметр/ширина воздуховода, мм", validators=[DataRequired()]
     )
