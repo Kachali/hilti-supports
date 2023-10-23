@@ -5,9 +5,9 @@ import os
 
 def connection_to_postgress(sys, user):
     specifications = psycopg2.connect(
-        dbname="support_user_database",
+        dbname=os.environ.get("DB_NAME"),
         host=os.environ.get("DB_HOST"),
-        user="support_user_database_user",
+        user=os.environ.get("DB_USER"),
         password=os.environ.get("DB_PASSWORD"),
         port="5432",
     )

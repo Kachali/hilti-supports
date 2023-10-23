@@ -316,9 +316,9 @@ def choose_system_parameters(sys):
 def backet():
     not_empty_systems = []
     specifications = psycopg2.connect(
-        dbname="support_user_database",
+        dbname=os.environ.get("DB_NAME"),
         host=os.environ.get("DB_HOST"),
-        user="support_user_database_user",
+        user=os.environ.get("DB_USER"),
         password=os.environ.get("DB_PASSWORD"),
         port="5432",
     )
@@ -455,9 +455,9 @@ def specification_per_user():
     user_id = request.args.get("id")
     needed_user = User.query.get(user_id)
     specifications = psycopg2.connect(
-        dbname="support_user_database",
+        dbname=os.environ.get("DB_NAME"),
         host=os.environ.get("DB_HOST"),
-        user="support_user_database_user",
+        user=os.environ.get("DB_USER"),
         password=os.environ.get("DB_PASSWORD"),
         port="5432",
     )
