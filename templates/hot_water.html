@@ -37,6 +37,26 @@
 				</tbody>
 		</table>
 	</form>
+
+	<script>
+        let dir_select = document.getElementById("direction_type");
+        let mounting_select = document.getElementById("mounting");
+
+        dir_select.onchange = function()  {
+            direction_type = dir_select.value;
+            fetch('/support_system/hot_water/mounting/' + direction_type).then(function(response) {
+                response.json().then(function(data) {
+                    let optionHTML = '';
+
+                    for (let fastening of data.fastenings) {
+                        optionHTML += '<option value="' + fastening.id + '">' + fastening.name + '</option>';
+                    }
+                    mounting_select.innerHTML = optionHTML;
+                });
+            });
+        }
+    </script>
+
 </div>
 
 {% endblock %}

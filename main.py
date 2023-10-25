@@ -7,6 +7,7 @@ from flask import (
     flash,
     abort,
     send_from_directory,
+    jsonify,
 )
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -48,9 +49,6 @@ app = Flask(__name__)
 Bootstrap(app)
 
 app.config.from_pyfile('settings.py')
-# app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
-# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app, engine_options={"pool_pre_ping": True})
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -474,6 +472,24 @@ def specification_per_user():
         len_of_df=len(all_user_spec_df),
         admin=True,
     )
+
+
+@app.route('/support_system/hot_water/mounting/<direction_type>')
+def mounting(direction_type):
+    with open("static/files/Трубы с температурным расширением.csv", "r", encoding="Windows-1251") as file:
+        data = pd.read_csv(file, delimiter=";")
+    mountings = data[data["горизонтальный/вертикальный"] == direction_type]['крепление_к'].unique()
+    mountingArray = []
+    n = 0
+    for mounting in mountings:
+        mountingObj = {}
+        mountingObj['id'] = n
+        mountingObj['name'] = mounting
+        mountingArray.append(mountingObj)
+        n = n + 1
+    # print(mountingArray)
+    return jsonify({'fastenings': mountingArray})
+
 
 
 with app.app_context():
