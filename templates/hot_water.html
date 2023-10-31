@@ -39,19 +39,45 @@
 	</form>
 
 	<script>
-        let dir_select = document.getElementById("direction_type");
+		let dir_select = document.getElementById("direction_type");
         let mounting_select = document.getElementById("mounting");
+        let support_type_select = document.getElementById("support_type");
+
+<!--          console.log(dir_select)-->
 
         dir_select.onchange = function()  {
             direction_type = dir_select.value;
-            fetch('/support_system/hot_water/mounting/' + direction_type).then(function(response) {
+<!--            alert(direction_type);-->
+
+            fetch('/support_system/hot_water/' + direction_type + '/mounting').then(function(response) {
                 response.json().then(function(data) {
+<!--                    console.log(data)-->
+<!--                    console.table(data);-->
                     let optionHTML = '';
 
                     for (let fastening of data.fastenings) {
-                        optionHTML += '<option value="' + fastening.id + '">' + fastening.name + '</option>';
+                        optionHTML += '<option value="' + fastening.name + '">' + fastening.name + '</option>';
                     }
                     mounting_select.innerHTML = optionHTML;
+
+                });
+            });
+        }
+            mounting_select.onchange = function()  {
+                mounting = mounting_select.value
+<!--                console.log('This is ' + mounting)-->
+<!--                alert(mounting);-->
+
+            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/support_type').then(function(response) {
+                response.json().then(function(data) {
+<!--                    console.log(data)-->
+<!--                    console.table(data);-->
+                    let optionHTML2 = '';
+
+                    for (let supp of data.support_types) {
+                        optionHTML2 += '<option value="' + supp.name + '">' + supp.name + '</option>';
+                    }
+                    support_type_select.innerHTML = optionHTML2;
                 });
             });
         }

@@ -2,7 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
 
-<div class="box">
+<div class="box" >
 	<h1>Выберите систему</h1>
 	{% with messages = get_flashed_messages() %}
 		{% if messages %}
@@ -13,6 +13,7 @@
     {% endwith %}
 	<form action="" method="post" class="form">
 		{{ wtf.quick_form(form) }}
+
 	</form>
 </div>
 

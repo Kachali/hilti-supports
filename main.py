@@ -40,13 +40,14 @@ from functools import wraps
 import requests
 from requests.auth import HTTPBasicAuth
 import psycopg2
-
+from dynamic_select_hot_wat import dynamic_selector_hot_water
 
 # dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 # load_dotenv(dotenv_path)
 
 app = Flask(__name__)
 Bootstrap(app)
+app.register_blueprint(dynamic_selector_hot_water)
 
 app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app, engine_options={"pool_pre_ping": True})
@@ -472,24 +473,6 @@ def specification_per_user():
         len_of_df=len(all_user_spec_df),
         admin=True,
     )
-
-
-@app.route('/support_system/hot_water/mounting/<direction_type>')
-def mounting(direction_type):
-    with open("static/files/Трубы с температурным расширением.csv", "r", encoding="Windows-1251") as file:
-        data = pd.read_csv(file, delimiter=";")
-    mountings = data[data["горизонтальный/вертикальный"] == direction_type]['крепление_к'].unique()
-    mountingArray = []
-    n = 0
-    for mounting in mountings:
-        mountingObj = {}
-        mountingObj['id'] = n
-        mountingObj['name'] = mounting
-        mountingArray.append(mountingObj)
-        n = n + 1
-    # print(mountingArray)
-    return jsonify({'fastenings': mountingArray})
-
 
 
 with app.app_context():
