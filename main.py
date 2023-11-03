@@ -245,9 +245,11 @@ def choose_system_parameters(sys):
     # else:
     #     param_form = RoofVentForm()
 
-    if request.method == "POST" and param_form.validate_on_submit():
+    if request.method == "POST":
+            # and param_form.validate_on_submit():
         # name_of_file = f'{current_user.name}_{translated_system}.csv'
         parameters = param_form.data
+        print(parameters)
         parameters.pop("csrf_token")
         parameters.pop("submit")
         choices = {"system": sys, "parameters": parameters}

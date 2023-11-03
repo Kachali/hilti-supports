@@ -28,24 +28,16 @@ base_materials_hot_water = [
     "Кирпич",
     "Профлист",
     "Ячеистый железобетон",
+    "Ребристая плита",
 ]
 distance_hot_water_horizontal = [
-    "50",
-    "100",
-    "150",
-    "200",
-    "250",
     "300",
-    "400",
-    "550",
     "600",
-    "700",
-    "800",
     "1000",
-    "2000",
     "3000",
     "6000",
 ]
+
 distance_hot_water_vertical = [
     "50",
     "100",
@@ -71,29 +63,29 @@ pipe_type = [
     "Нержавеющая сталь",
 ]
 diameters_hot_water = [
-    "8 (11-15)",
-    "10 (16-19)",
-    "15 (20-24)",
-    "20 (25-28)",
-    "25 (32-35)",
-    "32 (39-46)",
-    "40 (48-53)",
-    "50 (53-58)",
-    "50 (60-65)",
-    "60 (67-71)",
-    "65 (74-80)",
-    "70 (81-86)",
-    "80 (88-94)",
-    "90 (99-105)",
-    "100 (108-116)",
-    "110 (120-130)",
-    "125 (135-143)",
-    "140 (145-155)",
-    "150 (162-170)",
-    "175 (195-205)",
-    "200 (207-219)",
-    "225 (248-255)",
-    "250 (260-274)",
+    "8(11-15)",
+    "10(16-19)",
+    "15(20-24)",
+    "20(25-28)",
+    "25(32-35)",
+    "32(39-46)",
+    "40(48-53)",
+    "50(53-58)",
+    "50(60-65)",
+    "60(67-71)",
+    "65(74-80)",
+    "70(81-86)",
+    "80(88-94)",
+    "90(99-105)",
+    "100(108-116)",
+    "110(120-130)",
+    "125(135-143)",
+    "140(145-155)",
+    "150(162-170)",
+    "175(195-205)",
+    "200(207-219)",
+    "225(248-255)",
+    "250(260-274)",
 ]
 
 
@@ -123,33 +115,47 @@ class VentForm(FlaskForm):
     mounting = SelectField("Крепеление к:", choices=["Потолок", "Стена"])
     duct_type = SelectField("Тип воздуховода:", choices=["Круглый", "Прямоугольный"])
     # through_fastening = SelectField('Возможно ли крепление насквозь:', choices=['нет','да'])
-    diameter = StringField(label="Диаметр/ширина воздуховода, мм")
+    diameter = StringField(label="Диаметр/ширина воздуховода, мм", validators=[DataRequired()])
     # height = StringField(label='Высота воздуховода, мм')
     length = StringField(label="Длина трассы, м", validators=[DataRequired()])
     submit = SubmitField(label="Выбрать")
 
 
 class HotWaterForm(FlaskForm):
-    base_material = SelectField("Крепление к:", choices=base_materials_hot_water)
+    base_material = SelectField("Крепление к:", choices=base_materials_hot_water, validate_choice=False)
     direction_type = SelectField(
-        "Тип разводки:", choices=["Горизонтальный", "Вертикальный"]
+        "Тип разводки:",
+        # choices=["Горизонтальный", "Вертикальный"]
+        validate_choice=False
     )
     mounting = SelectField(
         "Крепеление к:",
-        choices=["Потолок", "Стена", "Пол", "Колонна", "Балка", "Плита по профлисту"],
+        validate_choice=False
+        # choices=["Потолок", "Стена", "Пол", "Колонна", "Балка", "Плита по профлисту"],
     )
     # system = SelectField('Система:', choices=heating_type)
     # pipe_type = SelectField('Тип трубы:', choices=pipe_type)
     # system_type = StringField(label='Принадлежность к системе (Т1, T2)')
-    support_type = SelectField('Тип опоры:', choices=['Рядовая опора', 'Подвижная опора', 'Крепление регистров отопления'])
+    support_type = SelectField('Тип опоры:',
+                               # choices=['Рядовая опора', 'Подвижная опора'])
+                               # , 'Крепление регистров отопления']
+                               validate_choice=False
+                               )
     diameter = SelectField(
         label="Условный диаметр трубы (диапазон диаметров), мм",
-        choices=diameters_hot_water,
+        validate_choice=False
+        # choices=diameters_hot_water,
     )
-    distance = SelectField("Вылет:", choices=distance_hot_water_horizontal)
-    isolation = SelectField(label="Трубы в изоляции", choices=["Да", "Нет"])
-    pipe_number = SelectField('Кол-во труб:', choices=['1','2', '3', '4'])
-    # diameter = StringField(label='Диаметр трубы, мм', validators=[DataRequired()])
+    distance = SelectField("Вылет:",
+                           validate_choice=False
+                           # choices=distance_hot_water_horizontal
+                           )
+    pipe_number = SelectField('Кол-во труб:',
+                              validate_choice=False
+                              # choices=['1']
+                              # ,'2', '3', '4']
+                              )
+    isolation = SelectField(label="Трубы в изоляции", choices=["Да", "Нет"], validate_choice=False)
     length = StringField(label="Длина трассы, м", validators=[DataRequired()])
     submit = SubmitField(label="Добавить")
 

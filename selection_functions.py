@@ -2,56 +2,33 @@ import pandas as pd
 import math
 
 diameters_hot_water = [
-    "8 (11-15)",
-    "10 (16-19)",
-    "15 (20-24)",
-    "20 (25-28)",
-    "25 (32-35)",
-    "32 (39-46)",
-    "40 (48-53)",
-    "50 (53-58)",
-    "50 (60-65)",
-    "60 (67-71)",
-    "65 (74-80)",
-    "70 (81-86)",
-    "80 (88-94)",
-    "90 (99-105)",
-    "100 (108-116)",
-    "110 (120-130)",
-    "125 (135-143)",
-    "140 (145-155)",
-    "150 (162-170)",
-    "175 (195-205)",
-    "200 (207-219)",
-    "225 (248-255)",
-    "250 (260-274)",
+    "8(11-15)",
+    "10(16-19)",
+    "15(20-24)",
+    "20(25-28)",
+    "25(32-35)",
+    "32(39-46)",
+    "40(48-53)",
+    "50(53-58)",
+    "50(60-65)",
+    "60(67-71)",
+    "65(74-80)",
+    "70(81-86)",
+    "80(88-94)",
+    "90(99-105)",
+    "100(108-116)",
+    "110(120-130)",
+    "125(135-143)",
+    "140(145-155)",
+    "150(162-170)",
+    "175(195-205)",
+    "200(207-219)",
+    "225(248-255)",
+    "250(260-274)",
 ]
 
 steel_pipe_mounting_step = {
-    "diameter_hot_water": [
-        "8",
-        "10",
-        "15",
-        "20",
-        "25",
-        "32",
-        "40",
-        "50",
-        "60",
-        "65",
-        "70",
-        "80",
-        "90",
-        "100",
-        "110",
-        "125",
-        "140",
-        "150",
-        "175",
-        "200",
-        "225",
-        "250",
-    ],
+    "diameter_hot_water": diameters_hot_water,
     "step_non_isolated": [
         "2.5",
         "2.5",
@@ -213,14 +190,14 @@ def hot_water_supports(support):
     # pipe_type = support['parameters']['pipe_type']
     support_type = support['parameters']['support_type']
     diameter = support["parameters"]["diameter"]
-    nominal_diameter = diameter.split(" ")[0]
-    diameter_diapason = diameter.split(" ")[1].replace("(", "").replace(")", "")
+    # nominal_diameter = diameter.split(" ")[0]
+    # diameter_diapason = diameter.split(" ")[1].replace("(", "").replace(")", "")
     isolation = support["parameters"]["isolation"]
     length = int(support["parameters"]["length"])
-    # print(base_material, direction_type, mounting, distance, pipe_number, support_type)
+    print(base_material, direction_type, mounting, distance, pipe_number, support_type, diameter)
     with open("static/files/Трубы с температурным расширением.csv", "r", encoding="Windows-1251") as file:
         data = pd.read_csv(file, delimiter=";")
-        print(data.columns, data.shape)
+        # print(data.columns, data.shape)
         support_num = data.loc[
             (data["материал_основания"] == base_material)
             & (data["горизонтальный/вертикальный"] == direction_type)
@@ -228,15 +205,14 @@ def hot_water_supports(support):
             & (data["вылет"] == distance)
             & (data["тип_опоры"] == support_type)
             & (data["кол-во_труб"] == pipe_number)
-            & (data["диапазон_диаметров"] == diameter_diapason)
+            & (data["все диаметры"] == diameter)
         ]
         print(support_num)
         try:
             final_number = support_num["номер_опоры"].values[0]
             print(final_number)
-            pipe_index = steel_pipe_mounting_step["diameter_hot_water"].index(
-                nominal_diameter
-            )
+            print(steel_pipe_mounting_step["diameter_hot_water"][0])
+            pipe_index = steel_pipe_mounting_step["diameter_hot_water"].index(diameter)
             if isolation == "Да":
                 step = float(steel_pipe_mounting_step["step_isolated"][pipe_index])
             else:
