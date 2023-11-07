@@ -111,7 +111,7 @@ a {
   -webkit-transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
   -ms-transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
   transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
-  border-bottom: dotted 1px;
+  border-bottom: none;
   color: #f56a6a;
   text-decoration: none; }
   a:hover {
@@ -2089,7 +2089,8 @@ button,
     border-bottom: 0;
     color: inherit;
     font-family: "Roboto Slab", serif;
-    font-size: 1.125em; }
+    font-size: 1.125em;
+    text-decoration: none;}
   #header .icons {
     text-align: right; }
   @media screen and (max-width: 1680px) {
@@ -2099,6 +2100,7 @@ button,
     #header {
       padding-top: 6.5em; }
       #header .logo {
+      text-decoration: none;
         font-size: 1.25em;
         margin: 0; }
       #header .icons {
@@ -2187,11 +2189,21 @@ button,
       max-height: 35vh; } }
 
 /* Footer */
-#footer .copyright {
-  color: #9fa3a6;
-  font-size: 0.9em; }
-  #footer .copyright a {
-    color: inherit; }
+footer {
+  padding: 50px 0 65px;
+}
+
+footer .list-inline {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+}
+
+footer .copyright {
+  font-size: 14px;
+  margin-bottom: 0;
+  text-align: center;
+}
 
 /* Menu */
 #menu ul {

@@ -8,54 +8,59 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
-</head>
+	</head>
+<body class="is-preload">
+    <!-- Wrapper -->
+        <div id="wrapper">
 
-<body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="/">Подбор опор HILTI</a>
-  <div class="collapse navbar-collapse">
-    <ul class="navbar-nav ml-auto">
-        {% if admin: %}
-         <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('show_users') }}">Пользователи</a>
-      </li>
-        {% endif %}
-      <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('home') }}">На главную</a>
-      </li>
-        <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('contact') }}">Обратная связь</a>
-      </li>
-        {% if not logged_in: %}
-      <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('login') }}">Вход</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('register') }}">Регистрация</a>
-      </li>
+            <!-- Main -->
+                <div id="main">
+                     <nav class="navbar navbar-expand-lg navbar-light bg-light">
+<!--      <a class="navbar-brand" href="/">Подбор опор HILTI</a>-->
+     <a href="index.html" class="navbar-brand"><strong>HILTI</strong> selector</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+            {% if admin: %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('show_users') }}">Пользователи</a></li>
+                {% endif %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">На главную</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('contact') }}">Обратная связь</a></li>
+                {% if not logged_in: %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Вход</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Регистрация</a></li>
 
-        {% else %}
-        <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('backet') }}">Корзина</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('logout') }}">Выход</a>
-       </li>
-        {% endif %}
+                {% else %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('backet') }}">Корзина</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Выход</a></li>
+                {% endif %}
+        </ul>
+      </div>
+    </nav>
+         {% if logged_in: %}
+            <h5 class="navbar">Пользователь: {{ current_user.name }}. Компания: {{ current_user.company }}. Email: {{  current_user.email  }}</h5>
+            {% endif %}
 
 
+        <div class="inner">
+            {% block content %}
+            {% endblock %}
+            </div>
+        </div>
+    </div>
 
-    </ul>
+<!--    <a href="https://www.hilti.ru/" class="hilti-logo ng-star-inserted" aria-label="Главная страница"><img src="/static/webfonts/hilti-logo.svg" alt="Логотип HILTI" class="ng-star-inserted"></a>-->
 
+<!--    <div class="box">-->
 
-  </div>
-</nav>
-     {% if logged_in: %}
-        <h5 class="navbar">Пользователь: {{ current_user.name }}. Компания: {{ current_user.company }}. Email: {{  current_user.email  }}</h5>
-    {% endif %}
-       {% block content %}
+<!--        </div>-->
 
-       {% endblock %}
-</body>
+<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
 
+    </body>
+{% include "footer.html" %}
 </html>
