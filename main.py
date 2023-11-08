@@ -122,10 +122,10 @@ def load_user(user_id):
 
 @app.route("/")
 def home():
-    if current_user.is_authenticated:
-        # print(current_user)
-        return redirect(url_for("choose_support_system"))
-    else:
+    # if current_user.is_authenticated:
+    #     # print(current_user)
+    #     return redirect(url_for("choose_support_system"))
+    # else:
         return render_template("index.html", logged_in=current_user.is_authenticated)
 
 
