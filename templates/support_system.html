@@ -1,9 +1,13 @@
 {% extends "base.html" %}
+{% block title %}Выберите тип инженерной сети{% endblock %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
 
 <div class="box" >
-	<h1>Выберите систему</h1>
+	<header class="major">
+            <h2>Выберите тип инженерной сети:</h2>
+        </header>
+<!--	<h1>Выберите тип инженерной сети</h1>-->
 	{% with messages = get_flashed_messages() %}
 		{% if messages %}
    			{% for message in messages %}
