@@ -48,13 +48,15 @@ def supp_mounting(base_material, direction_type):
 
 
 # //---------------------AUTO CHANGE OF SUPPORT TYPE______________
-@dynamic_selector_hot_water.route('/support_system/hot_water/<direction_type>/<mounting>/support_type')
-def supp_type(mounting, direction_type):
+@dynamic_selector_hot_water.route('/support_system/hot_water/<base_material>/<direction_type>/<mounting>/support_type')
+def supp_type(base_material, direction_type, mounting):
+    print(base_material, direction_type, mounting)
     supp_types = data[
-        (data["горизонтальный/вертикальный"] == direction_type)
+        (data["материал_основания"] == base_material)
+        & (data["горизонтальный/вертикальный"] == direction_type)
         & (data['крепление_к'] == mounting)
     ]['тип_опоры'].unique()
-    # print(supp_types)
+    print(supp_types)
     supportArray = []
     n = 0
     for support in supp_types:
@@ -63,16 +65,17 @@ def supp_type(mounting, direction_type):
         supportObj['name'] = support
         supportArray.append(supportObj)
         n = n + 1
-    # print(supportArray)
+    print(supportArray)
 
     return jsonify({'support_types': supportArray})
 
 
 # //---------------------AUTO CHANGE OF DIAMETERS______________
-@dynamic_selector_hot_water.route('/support_system/hot_water/<direction_type>/<mounting>/<support_type>/support_diameter')
-def supp_diameter(direction_type, mounting, support_type):
+@dynamic_selector_hot_water.route('/support_system/hot_water/<base_material>/<direction_type>/<mounting>/<support_type>/support_diameter')
+def supp_diameter(base_material, direction_type, mounting, support_type):
     supp_diameters = data[
-        (data["горизонтальный/вертикальный"] == direction_type)
+        (data["материал_основания"] == base_material)
+        & (data["горизонтальный/вертикальный"] == direction_type)
         & (data['крепление_к'] == mounting)
         & (data['тип_опоры'] == support_type)
     ]['все диаметры'].unique()
@@ -92,10 +95,11 @@ def supp_diameter(direction_type, mounting, support_type):
 
 
 # //---------------------AUTO CHANGE OF DISTANCE______________
-@dynamic_selector_hot_water.route('/support_system/hot_water/<direction_type>/<mounting>/<support_type>/<support_diameter>/support_distance')
-def supp_distance(direction_type, mounting, support_type, support_diameter):
+@dynamic_selector_hot_water.route('/support_system/hot_water/<base_material>/<direction_type>/<mounting>/<support_type>/<support_diameter>/support_distance')
+def supp_distance(base_material, direction_type, mounting, support_type, support_diameter):
     supp_distance = data[
-        (data["горизонтальный/вертикальный"] == direction_type)
+        (data["материал_основания"] == base_material)
+        & (data["горизонтальный/вертикальный"] == direction_type)
         & (data['крепление_к'] == mounting)
         & (data['тип_опоры'] == support_type)
         & (data['все диаметры'] == support_diameter)
@@ -119,10 +123,11 @@ def supp_distance(direction_type, mounting, support_type, support_diameter):
 
 
 # --------------------- AUTO CHANGE OF PIPE NUMBER ______________
-@dynamic_selector_hot_water.route('/support_system/hot_water/<direction_type>/<mounting>/<support_type>/<support_diameter>/<support_distance>/pipe_number')
-def pipe_number(direction_type, mounting, support_type, support_diameter, support_distance):
+@dynamic_selector_hot_water.route('/support_system/hot_water/<base_material>/<direction_type>/<mounting>/<support_type>/<support_diameter>/<support_distance>/pipe_number')
+def pipe_number(base_material, direction_type, mounting, support_type, support_diameter, support_distance):
     number_of_pipes = data[
-        (data["горизонтальный/вертикальный"] == direction_type)
+        (data["материал_основания"] == base_material)
+        &(data["горизонтальный/вертикальный"] == direction_type)
         & (data['крепление_к'] == mounting)
         & (data['тип_опоры'] == support_type)
         & (data['все диаметры'] == support_diameter)

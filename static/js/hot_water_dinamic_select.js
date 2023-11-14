@@ -47,7 +47,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
         mounting = mounting_select.value;
         console.log(`напр ${base_material} /${direction_type}/${mounting} `)
 
-        fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/support_type')
+        fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/support_type')
         .then(response => response.json())
         .then(function(data) {
             let optionHTML2 = '';
@@ -58,7 +58,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
             support_type = support_type_select.value;
             console.log(`напр ${base_material} /${direction_type}/${mounting}/${support_type} `)
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML3 = '';
@@ -69,7 +69,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 support_diameter = support_diameter_select.value;
                 console.log(`напр ${base_material} /${direction_type}/${mounting}/${support_type}/${support_diameter} `)
 
-                fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
+                fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
                 .then(response => response.json())
                 .then(function(data) {
                     let optionHTML4 = '';
@@ -81,7 +81,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                     console.log(`напр ${base_material} /${direction_type}/${mounting}/${support_type}/${support_diameter}/${support_distance} `)
 
 
-                    fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
+                    fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
                     .then(response => response.json())
                     .then(function(data) {
                         let optionHTML5 = '';
@@ -132,7 +132,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 mounting = mounting_select.value;
 
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/support_type')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/support_type')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML2 = '';
@@ -143,7 +143,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 support_type = support_type_select.value;
 
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML3 = '';
@@ -154,7 +154,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 support_diameter = support_diameter_select.value;
 
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML4 = '';
@@ -165,7 +165,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 support_distance = distance_select.value
 
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML5 = '';
@@ -197,21 +197,21 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 }
                 mounting_select.innerHTML = optionHTML1;
                 mounting = mounting_select.value;
-                });
+                console.log(mounting)
+
                 console.log(`после смены типа разводки ${direction_type}, ${mounting}`)
 
-                fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/support_type')
-            .then(response => response.json())
-            .then(function(data) {
-                let optionHTML2 = '';
-                for (let supp of data.support_types) {
-                    optionHTML2 += '<option value="' + supp.name + '">' + supp.name + '</option>';
-                }
-                support_type_select.innerHTML = optionHTML2;
-                support_type = support_type_select.value;
+                fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/support_type')
+                .then(response => response.json())
+                .then(function(data) {
+                    let optionHTML2 = '';
+                    for (let supp of data.support_types) {
+                        optionHTML2 += '<option value="' + supp.name + '">' + supp.name + '</option>';
+                    }
+                    support_type_select.innerHTML = optionHTML2;
+                    support_type = support_type_select.value;
 
-
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML3 = '';
@@ -222,7 +222,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 support_diameter = support_diameter_select.value;
 
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML4 = '';
@@ -233,7 +233,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 support_distance = distance_select.value
 
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML5 = '';
@@ -245,6 +245,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 pipe_number = pipe_number_select.value
                 console.log(`При смене типа разводки ${base_material}, ${direction_type}, ${mounting}, ${support_type}, ${support_diameter}, ${support_distance}, ${pipe_number}`)
                         });
+                        });
                     });
                 });
             });
@@ -252,7 +253,9 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
 
 //---------------------AUTO CHANGE OF SUPPORT TYPE______________
             mounting_select.onchange = function()  {
-                fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/support_type')
+                mounting = mounting_select.value;
+                console.log(mounting)
+                fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/support_type')
                 .then(response => response.json())
                 .then(function(data) {
                     let optionHTML2 = '';
@@ -262,7 +265,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                     support_type_select.innerHTML = optionHTML2;
                     support_type = support_type_select.value
 
-                fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
+                fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
                 .then(response => response.json())
                 .then(function(data) {
                 let optionHTML3 = '';
@@ -273,7 +276,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 support_diameter = support_diameter_select.value;
 
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML4 = '';
@@ -284,7 +287,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 support_distance = distance_select.value
 
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML5 = '';
@@ -306,7 +309,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 console.log('Support type = ' + support_type)
 //                alert(support_type);
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/support_diameter')
             .then(response => response.json())
             .then(function(data) {
                     let optionHTML3 = '';
@@ -317,7 +320,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                     support_diameter_select.innerHTML = optionHTML3;
                     support_diameter = support_diameter_select.value
 
-                    fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
+                    fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML4 = '';
@@ -328,7 +331,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                 support_distance = distance_select.value
 
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
             .then(response => response.json())
             .then(function(data) {
                 let optionHTML5 = '';
@@ -347,10 +350,10 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
 //---------------------AUTO CHANGE OF DISTANCE______________
          support_diameter_select.onchange = function()  {
                 support_diameter = support_diameter_select.value
-                console.log('Diameter = ' + support_diameter)
+//                console.log('Diameter = ' + support_diameter)
 //                alert(support_diameter);
 
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/support_distance')
             .then(response => response.json())
             .then(function(data) {
 <!--                    console.log(data)-->
@@ -363,7 +366,7 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
                     distance_select.innerHTML = optionHTML4;
                     support_distance = distance_select.value
 
-                fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
+                fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
                 .then(response => response.json())
                 .then(function(data) {
                 let optionHTML5 = '';
@@ -381,9 +384,8 @@ let direction = fetch('/support_system/hot_water/' + base_material + '/direction
 //--------------------- AUTO CHANGE OF PIPE NUMBER ______________
          distance_select.onchange = function()  {
             support_distance = distance_select.value
-            console.log('Distance = ' + support_distance)
-            console.log(typeof support_distance)
-            fetch('/support_system/hot_water/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
+//            console.log('Distance = ' + support_distance)
+            fetch('/support_system/hot_water/' + base_material + '/' + direction_type + '/'+ mounting + '/' + support_type + '/' + support_diameter + '/' + support_distance + '/pipe_number')
             .then(response => response.json())
             .then(function(data) {
 <!--                    console.log(data)-->
