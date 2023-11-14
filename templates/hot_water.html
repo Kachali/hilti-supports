@@ -10,7 +10,7 @@
 	{% with messages = get_flashed_messages() %}
 		{% if messages %}
    			{% for message in messages %}
-         		<p>{{ message }}</p>
+         		<p style="color:red">{{ message }}</p>
         	{% endfor %}
       	{% endif %}
     {% endwith %}
@@ -27,30 +27,6 @@
 			<div class="col-12">
 				{{ form.submit }}
 			</div>
-
-			<!--		<table class="table-wrapper">-->
-<!--			<thead>-->
-<!--				<tr>-->
-<!--&lt;!&ndash;					{% for field in form if field.name in ['base_material', 'direction_type', 'system', 'pipe_type', 'support_type'] %}&ndash;&gt;-->
-<!--&lt;!&ndash;					<th class="col-2 col-12-xsmall">{{ field.label }}</th>&ndash;&gt;-->
-<!--&lt;!&ndash;					{% endfor %}&ndash;&gt;-->
-<!--&lt;!&ndash;					{% for field in form if field.name not in ['base_material', 'direction_type', 'system', 'pipe_type', 'support_type', 'submit', 'csrf_token'] %}&ndash;&gt;-->
-<!--&lt;!&ndash;					<th class="col-1 col-12-xsmall">{{ field.label }}</th>&ndash;&gt;-->
-<!--&lt;!&ndash;					{% endfor %}&ndash;&gt;-->
-<!--					{% for field in form if field.name not in ['submit', 'csrf_token']%}-->
-<!--						<th class="col-2 col-12-xsmall">{{ field.label }}</th>-->
-<!--						{% endfor %}-->
-<!--				</tr>-->
-
-<!--			</thead>-->
-<!--				<tbody>-->
-<!--					<tr>-->
-<!--						{% for field in form %}-->
-<!--						<td>{{ field() }}</td>-->
-<!--						{% endfor %}-->
-<!--					</tr> &lt;!&ndash;ряд с ячейками тела таблицы&ndash;&gt;-->
-<!--				</tbody>-->
-<!--		</table>-->
 		</div>
 	</form>
 	<script src="{{ url_for ('static', filename='js/hot_water_dinamic_select.js') }}"></script>

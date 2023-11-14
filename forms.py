@@ -110,73 +110,46 @@ class ChooseSystemForm(FlaskForm):
 
 
 class VentForm(FlaskForm):
-    base_material = SelectField("Крепление к:", choices=base_materials_vent)
+    base_material = SelectField("Базовый материал:", choices=base_materials_vent)
     direction_type = SelectField("Тип разводки:", choices=["Горизонтальный", "Вертикальный"])
-    mounting = SelectField("Крепеление к:", choices=["Потолок", "Стена"])
+    mounting = SelectField("Конструкция для крепления:", choices=["Потолок", "Стена"])
     duct_type = SelectField("Тип воздуховода:", choices=["Круглый", "Прямоугольный"])
     # through_fastening = SelectField('Возможно ли крепление насквозь:', choices=['нет','да'])
-    diameter = StringField(label="Диаметр/ширина воздуховода, мм", validators=[DataRequired()])
+    diameter = StringField(label="Диаметр/ширина воздуховода, мм:", validators=[DataRequired()])
     # height = StringField(label='Высота воздуховода, мм')
-    length = StringField(label="Длина трассы, м", validators=[DataRequired()])
+    length = StringField(label="Длина трассы, м:", validators=[DataRequired()])
     submit = SubmitField(label="Выбрать")
 
 
 class HotWaterForm(FlaskForm):
     base_material = SelectField("Базовый материал:", choices=base_materials_hot_water, validate_choice=False)
-    direction_type = SelectField(
-        "Тип разводки:",
-        # choices=["Горизонтальный", "Вертикальный"]
-        validate_choice=False
-    )
+    direction_type = SelectField("Тип разводки:", validate_choice=False)
     mounting = SelectField(
         "Конструкция для крепления:",
         validate_choice=False
-        # choices=["Потолок", "Стена", "Пол", "Колонна", "Балка", "Плита по профлисту"],
     )
     # system = SelectField('Система:', choices=heating_type)
     # pipe_type = SelectField('Тип трубы:', choices=pipe_type)
     # system_type = StringField(label='Принадлежность к системе (Т1, T2)')
-    support_type = SelectField('Тип опоры:',
-                               # choices=['Рядовая опора', 'Подвижная опора'])
-                               # , 'Крепление регистров отопления']
-                               validate_choice=False
-                               )
+    support_type = SelectField('Тип опоры:', validate_choice=False)
     diameter = SelectField(
         label="Условный диаметр трубы (диапазон диаметров), мм:",
         validate_choice=False
-        # choices=diameters_hot_water,
     )
     distance = SelectField("Вылет:",
                            validate_choice=False
-                           # choices=distance_hot_water_horizontal
                            )
-    pipe_number = SelectField('Кол-во труб:',
-                              validate_choice=False
-                              # choices=['1']
-                              # ,'2', '3', '4']
-                              )
+    pipe_number = SelectField('Кол-во труб:',validate_choice=False)
     isolation = SelectField(label="Наличие изоляции:", choices=["Есть", "Нет"], validate_choice=False)
     length = StringField(label="Длина трассы, м:", validators=[DataRequired()])
     submit = SubmitField(label="Добавить")
 
-
-class ColdWaterForm(FlaskForm):
-    base_material = SelectField("Крепление к:", choices=base_materials)
-    direction_type = SelectField("Тип разводки:", choices=direction)
-    system = SelectField("Система:", choices=cold_water_type)
-    pipe_type = SelectField("Тип трубы:", choices=pipe_type)
-    system_type = StringField(label="Принадлежность к системе (К1, В2)")
-    diameter = StringField(label="Диаметр трубы, мм", validators=[DataRequired()])
-    length = StringField(label="Длина трассы, м", validators=[DataRequired()])
-    submit = SubmitField(label="Добавить")
-
-
 class SprinklerForm(FlaskForm):
-    base_material = SelectField("Крепление к:", choices=base_materials)
+    base_material = SelectField("Базовый материал:", choices=base_materials)
     direction_type = SelectField("Тип разводки:", choices=["Горизонтальная/потолок"])
     pipe_type = SelectField("Тип трубы:", choices=["Стальная труба"])
-    diameter = StringField(label="Диаметр трубы, мм", validators=[DataRequired()])
-    length = StringField(label="Длина трассы, м", validators=[DataRequired()])
+    diameter = StringField(label="Диаметр трубы, мм:", validators=[DataRequired()])
+    length = StringField(label="Длина трассы, м:", validators=[DataRequired()])
     submit = SubmitField(label="Добавить")
 
 
