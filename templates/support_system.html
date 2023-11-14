@@ -15,10 +15,73 @@
         	{% endfor %}
       	{% endif %}
     {% endwith %}
-	<form action="" method="post" class="form">
-		{{ wtf.quick_form(form) }}
 
-	</form>
+	<div class="posts">
+		<div class="row">
+			<article>
+				<a href="{{ url_for('choose_system_parameters', sys='ventilation') }}">
+					<h3>Крепление воздуховодов</h3>
+					<span class="image">
+							<img src="static/img/ventilation.jpg">
+						</span>
+				</a>
+			</article>
+
+			<article>
+				<a href="{{ url_for('choose_system_parameters', sys='hot_water') }}">
+						<h3>Крепление трубопроводов (рядовые опоры)</h3>
+					<span class="image">
+							<img src="static/img/piping.jpg">
+						</span>
+					<div>
+					</div>
+				</a>
+			</article>
+
+			<article>
+				<a href="{{ url_for('choose_system_parameters', sys='sprinkler') }}">
+					<h3>Спринклерное пожаротушение</h3>
+					<span class="image">
+							<img src="static/img/sprinkler.jpg">
+						</span>
+				</a>
+			</article>
+
+			<article>
+				<a href="{{ url_for('choose_system_parameters', sys='fixed_supports') }}">
+					<h3>Фиксирующие опоры</h3>
+					<span class="image">
+							<img src="static/img/fix.jpg">
+						</span>
+				</a>
+			</article>
+
+			<article>
+				<a href="{{ url_for('choose_system_parameters', sys='radial_fans') }}">
+					<h3>Оборудование на кровле</h3>
+					<span class="image">
+							<img src="static/img/roof equipment.jpg">
+						</span>
+				</a>
+			</article>
+
+			<article>
+				<a href="{{ url_for('choose_system_parameters', sys='roof_equipment') }}">
+					<h3>Обвязка воздуховодов на кровле</h3>
+					<span class="image">
+							<img src="static/img/roof vent.jpg">
+						</span>
+				</a>
+			</article>
+		</div>
+	</div>
+
+
+
+<!--	<form action="" method="post" class="form">-->
+<!--		{{ wtf.quick_form(form) }}-->
+
+<!--	</form>-->
 </div>
 
 {% endblock %}

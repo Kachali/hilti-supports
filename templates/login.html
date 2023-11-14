@@ -2,7 +2,8 @@
 {% block content %}
 
 <div class="box">
-    <h1>Вход</h1>
+    <h2>Войти</h2>
+
     {% with messages = get_flashed_messages() %}
     {% if messages %}
    {% for message in messages %}
@@ -11,10 +12,26 @@
       {% endif %}
     {% endwith %}
 
-    <form action="{{ url_for('login') }}" method="post" class="col-4 col-12-xsmall">
-        <input type="text" name="email" placeholder="Email" id="demo-name" required="required"/>
-        <input type="password" name="password" placeholder="Пароль" required="required"/>
-        <button type="submit" class="button">Войти</button>
+    <form action="{{ url_for('login') }}" method="post" class="col-6 col-12-xsmall">
+        <div class="row gtr-uniform">
+            <div class="col-12">
+               <label class="field-label" title="Адрес электронной почты"> Адрес электронной почты: </label>
+             </div>
+            <div class="col-12">
+                <input type="text" name="email" placeholder="Email" id="demo-name" required="required"/>
+            </div>
+            <div class="col-12">
+                <label class="field-label" title="Пароль"> Пароль: </label>
+            </div>
+            <div class="col-12">
+                <input type="password" name="password" placeholder="Пароль" required="required"/>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="button">Войти</button>
+            </div>
+<!--            <br>-->
+    <!--        <a href="">Забыли пароль?</a>-->
+        </div>
     </form>
 </div>
 

@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="box">
-	<h1>Регистрация</h1>
+    <h2>Регистрация</h2>
     {% with messages = get_flashed_messages() %}
 {% if messages %}
    {% for message in messages %}
@@ -11,11 +11,35 @@
       {% endif %}
     {% endwith %}
     <form action="{{ url_for('register') }}" method="post" class="col-4 col-12-xsmall">
-    	<input type="text" name="name" placeholder="Имя" required="required" />
-        <input type="text" name="company" placeholder="Компания" required="required" />
-		<input type="email" name="email" placeholder="Email" required="required" />
-        <input type="password" name="password" placeholder="Пароль" required="required" />
-        <button type="submit" class="button">Зарегистрироваться</button>
+        <div class="row gtr-uniform">
+            <div class="col-12">
+                <label class="field-label" title="Имя пользователя">Имя пользователя: </label>
+            </div>
+            <div class="col-12">
+                <input type="text" name="name" placeholder="Имя" required="required" />
+            </div>
+            <div class="col-12">
+                <label class="field-label" title="Компания">Компания: </label>
+            </div>
+            <div class="col-12">
+                <input type="text" name="company" placeholder="Компания" required="required" />
+            </div>
+            <div class="col-12">
+                <label class="field-label" title="Рабочая электронная почта">Рабочая электронная почта: </label>
+            </div>
+            <div class="col-12">
+                <input type="email" name="email" placeholder="Email" required="required" />
+            </div>
+            <div class="col-12">
+                <label class="field-label" title="Создайте пароль">Создайте пароль: </label>
+            </div>
+            <div class="col-12">
+                <input type="password" name="password" placeholder="Пароль" required="required" />
+            </div>
+            <div class="col-12">
+                <button type="submit" class="button">Зарегистрироваться</button>
+            </div>
+        </div>
     </form>
 </div>
 
