@@ -122,14 +122,14 @@ class VentForm(FlaskForm):
 
 
 class HotWaterForm(FlaskForm):
-    base_material = SelectField("Крепление к:", choices=base_materials_hot_water, validate_choice=False)
+    base_material = SelectField("Базовый материал:", choices=base_materials_hot_water, validate_choice=False)
     direction_type = SelectField(
         "Тип разводки:",
         # choices=["Горизонтальный", "Вертикальный"]
         validate_choice=False
     )
     mounting = SelectField(
-        "Крепеление к:",
+        "Конструкция для крепления:",
         validate_choice=False
         # choices=["Потолок", "Стена", "Пол", "Колонна", "Балка", "Плита по профлисту"],
     )
@@ -142,7 +142,7 @@ class HotWaterForm(FlaskForm):
                                validate_choice=False
                                )
     diameter = SelectField(
-        label="Условный диаметр трубы (диапазон диаметров), мм",
+        label="Условный диаметр трубы (диапазон диаметров), мм:",
         validate_choice=False
         # choices=diameters_hot_water,
     )
@@ -155,8 +155,8 @@ class HotWaterForm(FlaskForm):
                               # choices=['1']
                               # ,'2', '3', '4']
                               )
-    isolation = SelectField(label="Трубы в изоляции", choices=["Да", "Нет"], validate_choice=False)
-    length = StringField(label="Длина трассы, м", validators=[DataRequired()])
+    isolation = SelectField(label="Наличие изоляции:", choices=["Есть", "Нет"], validate_choice=False)
+    length = StringField(label="Длина трассы, м:", validators=[DataRequired()])
     submit = SubmitField(label="Добавить")
 
 

@@ -1,9 +1,12 @@
 {% extends "base.html" %}
+{% block title %}Крепление трубопроводов{% endblock %}
 {% block content %}
 
 
 <div class="box">
-	<h1>Трубопроводы с температурным расширением (отопление, ГВ)</h1>
+	<header class="major">
+        <h2>Крепление трубопроводов</h2>
+    </header>
 	{% with messages = get_flashed_messages() %}
 		{% if messages %}
    			{% for message in messages %}
@@ -11,31 +14,44 @@
         	{% endfor %}
       	{% endif %}
     {% endwith %}
+
 	<form action="" method="post" class="form">
 	{{ form.hidden_tag() }}
-		<table class="table-wrapper">
-			<thead>
-				<tr>
-<!--					{% for field in form if field.name in ['base_material', 'direction_type', 'system', 'pipe_type', 'support_type'] %}-->
-<!--					<th class="col-2 col-12-xsmall">{{ field.label }}</th>-->
-<!--					{% endfor %}-->
-<!--					{% for field in form if field.name not in ['base_material', 'direction_type', 'system', 'pipe_type', 'support_type', 'submit', 'csrf_token'] %}-->
-<!--					<th class="col-1 col-12-xsmall">{{ field.label }}</th>-->
-<!--					{% endfor %}-->
-					{% for field in form if field.name not in ['submit', 'csrf_token']%}
-						<th class="col-2 col-12-xsmall">{{ field.label }}</th>
-						{% endfor %}
-				</tr>
+		<div class="row gtr-uniform">
+			{% for field in form if field.name not in ['submit', 'csrf_token']%}
+			<div class="col-3 col-6-xsmall">
+				<h4 class="hot-water-title">{{ field.label }}</h4>
+				{{ field() }}
+			</div>
+			{% endfor %}
+			<div class="col-12">
+				{{ form.submit }}
+			</div>
 
-			</thead>
-				<tbody>
-					<tr>
-						{% for field in form %}
-						<td>{{ field() }}</td>
-						{% endfor %}
-					</tr> <!--ряд с ячейками тела таблицы-->
-				</tbody>
-		</table>
+			<!--		<table class="table-wrapper">-->
+<!--			<thead>-->
+<!--				<tr>-->
+<!--&lt;!&ndash;					{% for field in form if field.name in ['base_material', 'direction_type', 'system', 'pipe_type', 'support_type'] %}&ndash;&gt;-->
+<!--&lt;!&ndash;					<th class="col-2 col-12-xsmall">{{ field.label }}</th>&ndash;&gt;-->
+<!--&lt;!&ndash;					{% endfor %}&ndash;&gt;-->
+<!--&lt;!&ndash;					{% for field in form if field.name not in ['base_material', 'direction_type', 'system', 'pipe_type', 'support_type', 'submit', 'csrf_token'] %}&ndash;&gt;-->
+<!--&lt;!&ndash;					<th class="col-1 col-12-xsmall">{{ field.label }}</th>&ndash;&gt;-->
+<!--&lt;!&ndash;					{% endfor %}&ndash;&gt;-->
+<!--					{% for field in form if field.name not in ['submit', 'csrf_token']%}-->
+<!--						<th class="col-2 col-12-xsmall">{{ field.label }}</th>-->
+<!--						{% endfor %}-->
+<!--				</tr>-->
+
+<!--			</thead>-->
+<!--				<tbody>-->
+<!--					<tr>-->
+<!--						{% for field in form %}-->
+<!--						<td>{{ field() }}</td>-->
+<!--						{% endfor %}-->
+<!--					</tr> &lt;!&ndash;ряд с ячейками тела таблицы&ndash;&gt;-->
+<!--				</tbody>-->
+<!--		</table>-->
+		</div>
 	</form>
 	<script src="{{ url_for ('static', filename='js/hot_water_dinamic_select.js') }}"></script>
 

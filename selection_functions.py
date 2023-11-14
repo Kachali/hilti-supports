@@ -213,7 +213,7 @@ def hot_water_supports(support):
             print(final_number)
             print(steel_pipe_mounting_step["diameter_hot_water"][0])
             pipe_index = steel_pipe_mounting_step["diameter_hot_water"].index(diameter)
-            if isolation == "Да":
+            if isolation == "Есть":
                 step = float(steel_pipe_mounting_step["step_isolated"][pipe_index])
             else:
                 step = float(steel_pipe_mounting_step["step_non_isolated"][pipe_index])
