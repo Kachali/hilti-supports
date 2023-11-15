@@ -1,18 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Подобранные опоры {{current_system}} {% endblock %}
+{% block title %}Подобранные опоры: {{current_system}} {% endblock %}
 {% block content %}
 
 
 <div class="box">
-		<h2>Система: {{  current_system  }}</h2>
-		<h3>Подобранные опоры.</h3>
+<!--		<h2>Система: {{  current_system  }}</h2>-->
+	<header class="major">
+        <h2>Подобранные опоры на систему: {{  current_system  }}</h2>
+    </header>
+<!--		<h3>Подобранные опоры.</h3>-->
 			<div class="table-wrapper">
 				<table>
 					<thead>
 						<tr>
-							<th>Наименование опоры:</th>
-							<th>Описание (базовый материал, габариты, длина и тд):</th>
-							<th>Количество опор:</th>
+							<th><h4>Наименование опоры:</h4></th>
+							<th><h4>Описание (базовый материал, габариты, длина и тд):</h4></th>
+							<th><h4>Количество опор:</h4></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -35,11 +38,11 @@
 			<form action="{{ url_for('send', sys=current_system) }}" method="post">
 				<div class="row gtr-uniform">
 					<div class="col-6 col-12-xsmall">
-						<label>Название объекта:</label>
+						<label><h4>Название объекта:</h4></label>
 						<input type="text" required placeholder="Введите название объекта" name="objectname">
 					</div>
 					<div class="col-6 col-12-xsmall">
-						<label>Адрес объекта:</label>
+						<label><h4>Адрес объекта:</h4></label>
 						<input type="text" required placeholder="Введите адрес объекта" name="objectaddress">
 					</div>
 				</div>
