@@ -89,9 +89,9 @@ def vent_support(support):
         diameter < 400
         and direction_type == "Горизонтальная"
     ):
-        num_of_supports = math.ceil(length / 4)
+        num_of_supports = math.ceil(length / 4) + 1
     else:
-        num_of_supports = math.ceil(length / 3)
+        num_of_supports = math.ceil(length / 3) + 1
 
     print(base_material, direction_type, mounting, duct_type, diameter, num_of_supports)
     with open(
@@ -155,7 +155,7 @@ def sprinkler_support(support):
         try:
             step = support_num.iloc[0]["шаг_опор"]
             step_float = float(step.replace(",", "."))
-            num_of_supports = math.ceil(length / step_float)
+            num_of_supports = math.ceil(length / step_float) + 1
             print(num_of_supports)
             final_number = support_num["номер_опоры"].values[0]
             print(final_number)
@@ -190,8 +190,6 @@ def hot_water_supports(support):
     # pipe_type = support['parameters']['pipe_type']
     support_type = support['parameters']['support_type']
     diameter = support["parameters"]["diameter"]
-    # nominal_diameter = diameter.split(" ")[0]
-    # diameter_diapason = diameter.split(" ")[1].replace("(", "").replace(")", "")
     isolation = support["parameters"]["isolation"]
     length = int(support["parameters"]["length"])
     print(base_material, direction_type, mounting, distance, pipe_number, support_type, diameter)
@@ -217,11 +215,42 @@ def hot_water_supports(support):
                 step = float(steel_pipe_mounting_step["step_isolated"][pipe_index])
             else:
                 step = float(steel_pipe_mounting_step["step_non_isolated"][pipe_index])
-            num_of_supports = math.ceil(length / step)
+            num_of_supports = math.ceil(length / step) + 1
             print(
                 f"Длина участка {length}, условный диаметр трубы {diameter[0]}, шаг опор {step}, колиичство опор {num_of_supports}"
             )
             description = f"{base_material}, {direction_type}, {mounting}, {distance}, изоляция: {isolation}, {diameter}мм, {length}м, по всем вопросам обращаться к специалисту компании HILTI"
+            print(
+                f"Номер опоры {final_number}, количество опор {num_of_supports}, {description}"
+            )
+            return [final_number, num_of_supports, description]
+
+        except IndexError:
+            return False
+
+
+def roof_vent_supports(support):
+    duct_type = support["parameters"]["duct_type"]
+    diameter = int(support["parameters"]["diameter"])
+    load = support["parameters"]["load"]
+    space = int(support["parameters"]["space"])
+    length = int(support["parameters"]["length"])
+    print(duct_type,  diameter, load, space, length)
+
+    with open("static/files/Вентиляция на кровле.csv", "r", encoding="Windows-1251") as file:
+        data = pd.read_csv(file, delimiter=";")
+        # print(data.columns, data.shape)
+        support_num = data.loc[
+            (data["Сечение воздуховода"] == duct_type)
+            & (data["Ширина/диаметр воздуховода"] == diameter)
+            & (data["Нагрузка"] == load)
+            & (data["Максимальная высота опоры"] == space)
+        ]
+        try:
+            step = support_num.iloc[0]["Шаг опор"]
+            num_of_supports = math.ceil(length / step) + 1
+            final_number = support_num["номер_опоры"].values[0]
+            description = f"{duct_type}, {diameter}мм, {load.lower()}, максимальная высота опоры {space}мм, длина участка {length}м, по всем вопросам обращаться к специалисту компании HILTI"
             print(
                 f"Номер опоры {final_number}, количество опор {num_of_supports}, {description}"
             )

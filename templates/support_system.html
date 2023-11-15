@@ -7,7 +7,6 @@
 	<header class="major">
             <h2>Выберите тип инженерной сети:</h2>
         </header>
-<!--	<h1>Выберите тип инженерной сети</h1>-->
 	{% with messages = get_flashed_messages() %}
 		{% if messages %}
    			{% for message in messages %}
@@ -66,7 +65,7 @@
 			</article>
 
 			<article>
-				<a href="{{ url_for('choose_system_parameters', sys='roof_equipment') }}">
+				<a href="{{ url_for('choose_system_parameters', sys='roof_vent') }}">
 					<h3>Обвязка воздуховодов на кровле</h3>
 					<span class="image">
 							<img src="static/img/roof vent.jpg">
@@ -75,13 +74,6 @@
 			</article>
 		</div>
 	</div>
-
-
-
-<!--	<form action="" method="post" class="form">-->
-<!--		{{ wtf.quick_form(form) }}-->
-
-<!--	</form>-->
 </div>
 
 {% endblock %}

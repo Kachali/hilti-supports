@@ -177,17 +177,18 @@ class RadialFanForm(FlaskForm):
 
 
 class RoofVentForm(FlaskForm):
-    roof_material = StringField(label="Тип кровли:")
-    city = StringField(label="Город строительства:", validators=[DataRequired()])
-    height = StringField(
-        label="Высотная отметка кровли, м", validators=[DataRequired()]
-    )
+    # roof_material = StringField(label="Тип кровли:")
+    # city = StringField(label="Город строительства:", validators=[DataRequired()])
+    # height = StringField(
+    #     label="Высотная отметка кровли, м", validators=[DataRequired()]
+    # )
     duct_type = SelectField("Тип воздуховода:", choices=["Круглый", "Прямоугольный"])
-    diameter = StringField(
-        label="Диаметр/ширина воздуховода, мм", validators=[DataRequired()]
+    diameter = SelectField(label="Диаметр/ширина воздуховода, мм:")
+    load = SelectField("Нагрузка:", choices=["Собственный вес воздуховода в изоляции",
+                                             "Собственный вес воздуховода в изоляции+снег (III снеговой район)",
+                                             "Собственный вес воздуховода в изоляции+снег (III снеговой район)+ветер 60кг на м2"])
+    space = SelectField(
+        label="Максимальная высота рамы, мм:", choices=["750", "1000"]
     )
     length = StringField(label="Длина трассы, м", validators=[DataRequired()])
-    space = StringField(
-        label="Расстояние от кровли до воздуховода, мм", validators=[DataRequired()]
-    )
     submit = SubmitField(label="Добавить")

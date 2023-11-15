@@ -5,12 +5,7 @@ let support_type_select = document.getElementById("support_type");
 let support_diameter_select = document.getElementById("diameter");
 let distance_select = document.getElementById("distance");
 let pipe_number_select = document.getElementById("pipe_number");
-//let dir_select
-//let mounting_select
-//let support_type_select
-//let support_diameter_select
-//let distance_select
-//let pipe_number_select
+
 //---------------------преднастройка______________
 let base_material = base_material_select.value;
 //let direction_type = dir_select.value;

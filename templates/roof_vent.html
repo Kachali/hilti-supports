@@ -1,11 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Вентиляция{% endblock %}
+{% block title %}Воздуховоды на кровле{% endblock %}
 {% block content %}
-
 
 <div class="box">
 	<header class="major">
-        <h2>Вентиляция</h2>
+        <h2>Обвязка воздуховодов на кровле</h2>
     </header>
 	{% with messages = get_flashed_messages() %}
 		{% if messages %}
@@ -29,6 +28,7 @@
 			</div>
 		</div>
 	</form>
-
+<script src="{{ url_for ('static', filename='js/roof_vent_dynamic_select.js') }}"></script>
 </div>
+
 {% endblock %}

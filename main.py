@@ -32,7 +32,7 @@ from forms import (
 )
 import os
 import pandas as pd
-from selection_functions import vent_support, sprinkler_support, hot_water_supports
+from selection_functions import vent_support, sprinkler_support, hot_water_supports, roof_vent_supports
 from functions import connection_to_postgress
 # from dotenv import load_dotenv
 from functools import wraps
@@ -40,6 +40,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import psycopg2
 from dynamic_select_hot_wat import dynamic_selector_hot_water
+from dynamic_select_roof_vent import dynamic_selector_roof_vent
 
 # dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 # load_dotenv(dotenv_path)
@@ -47,6 +48,7 @@ from dynamic_select_hot_wat import dynamic_selector_hot_water
 app = Flask(__name__)
 Bootstrap(app)
 app.register_blueprint(dynamic_selector_hot_water)
+app.register_blueprint(dynamic_selector_roof_vent)
 
 app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app, engine_options={"pool_pre_ping": True})
@@ -101,7 +103,7 @@ SYSTEMS = [
     "sprinkler",
     "ventilation",
     "radial_fans",
-    "roof_equipment",
+    "roof_vent",
 ]
 SYSTEMS_TRANS = [
     "Трубопроводы с температурным расширением (отопление, ГВ)",
@@ -110,7 +112,7 @@ SYSTEMS_TRANS = [
     "Спринклерное пожаротушение",
     "Вентиляция",
     "Оборудование на кровле",
-    "Обвязка по кровле",
+    "Обвязка воздуховодов на кровле"
 ]
 
 
@@ -207,19 +209,20 @@ def logout():
 
 @app.route("/support_system", methods=["GET", "POST"])
 def choose_support_system():
-    form = ChooseSystemForm()
+    # form = ChooseSystemForm()
     if current_user.id == 1:
         admin = True
     else:
         admin = False
-    if form.validate_on_submit():
-        system = form.system.data[0]
-        return redirect(url_for("choose_system_parameters", sys=system))
+    # if form.validate_on_submit():
+    #     system = form.system.data[0]
+    #     print(system)
+    #     return redirect(url_for("choose_system_parameters", sys=system))
 
     return render_template(
         "support_system.html",
         logged_in=current_user.is_authenticated,
-        form=form,
+        # form=form,
         admin=admin,
     )
 
@@ -235,20 +238,20 @@ def choose_system_parameters(sys):
     #     param_form = RadialFanForm()
     elif sys == "hot_water":
         param_form = HotWaterForm()
+    elif sys == 'roof_vent':
+        param_form = RoofVentForm()
     else:
         return "Страница в разработке"
     # elif sys == 'cold_water':
     #     param_form = ColdWaterForm()
-    # elif sys == 'radial_fans':
-    #     param_form = RadialFanForm()
     # else:
-    #     param_form = RoofVentForm()
+    #     param_form =
 
     if request.method == "POST":
             # and param_form.validate_on_submit():
         # name_of_file = f'{current_user.name}_{translated_system}.csv'
         parameters = param_form.data
-        print(parameters)
+        # print(parameters)
         parameters.pop("csrf_token")
         parameters.pop("submit")
         choices = {"system": sys, "parameters": parameters}
@@ -261,6 +264,8 @@ def choose_system_parameters(sys):
         elif sys == "hot_water":
             current_system = hot_water_supports(choices)
 
+        elif sys == "roof_vent":
+            current_system = roof_vent_supports(choices)
         # print(f'это {current_system}')
         # Это условие может быть разным в зависимости от системы
         if not current_system:
