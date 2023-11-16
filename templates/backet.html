@@ -14,8 +14,9 @@
         	{% endfor %}
       	{% endif %}
     {% endwith %}
-	{% for sys in not_empty_systems %}
-		<a href="{{ url_for('backet_per_system', sys=sys) }}" class="button fit">{{ sys }}</a>
+
+	{% for sys in not_empty_systems_eng %}
+		<a href="{{ url_for('backet_per_system', sys_eng=sys) }}" class="button fit">{{ not_empty_systems[not_empty_systems_eng.index(sys)] }}</a>
 	{% endfor %}
 	{% if length_of_systems_list==0 %}
 		<h4 style="color:red">Корзина пуста! Добавьте опоры.</h4>

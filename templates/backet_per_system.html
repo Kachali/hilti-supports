@@ -4,7 +4,6 @@
 
 
 <div class="box">
-<!--		<h2>Система: {{  current_system  }}</h2>-->
 	<header class="major">
         <h2>Подобранные опоры на систему: {{  current_system  }}</h2>
     </header>
@@ -49,7 +48,7 @@
 				<button type="submit" class="button primary fit">Создать спецификацию и скачать в формате эксель</button>
 			</form>
 
-			<a href="{{ url_for('choose_support_system')}}" class="button primary">Добавить опоры</a>
+			<a href="{{ url_for('choose_system_parameters', sys=sys_eng)}}" class="button primary">Добавить опоры</a>
 			<a href="{{ url_for('delete_all', sys=current_system, name=filename) }}" class="button primary">Очистить корзину</a>
 	</div>
 {% endblock %}

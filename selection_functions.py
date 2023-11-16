@@ -84,7 +84,7 @@ def vent_support(support):
     mounting = support["parameters"]["mounting"]
     duct_type = support["parameters"]["duct_type"]
     diameter = int(support["parameters"]["diameter"])
-    length = int(support["parameters"]["length"])
+    length = float(support["parameters"]["length"])
     if (
         diameter < 400
         and direction_type == "Горизонтальная"
@@ -93,45 +93,21 @@ def vent_support(support):
     else:
         num_of_supports = math.ceil(length / 3) + 1
 
-    print(base_material, direction_type, mounting, duct_type, diameter, num_of_supports)
+    print(base_material, direction_type, mounting, duct_type, diameter, length, num_of_supports)
     with open(
-        "static/files/Вентиляция опоры.csv", "r", encoding="utf-8"
+        "static/files/Вентиляция опоры.csv", "r", encoding="Windows-1251"
     ) as file:
         data = pd.read_csv(file, delimiter=";")
-        print(data.columns, data.shape)
-        # print(data.head)
-        if duct_type == "Прямоугольный" and diameter % 200 != 0:
-            new_diameter = (diameter - diameter % 200) + 200
-            # print(f'Введенный диаметр {diameter}, округленный диаметр {new_diameter}')
-            support_num = data.loc[
-                (data["горизонтальный/вертикальный"] == direction_type)
-                & (data["материал_основания"] == base_material)
-                & (data["крепление_к"] == mounting)
-                & (data["тип_воздуховода"] == duct_type)
-                & (data["диаметр/ширина"] == new_diameter)
-            ]
-
-        else:
-            support_num = data.loc[
-                (data["материал_основания"] == base_material)
-                & (data["горизонтальный/вертикальный"] == direction_type)
-                & (data["крепление_к"] == mounting)
-                & (data["тип_воздуховода"] == duct_type)
-                & (data["диаметр/ширина"] == diameter)
-            ]
-            print(support_num)
+        support_num = data.loc[
+            (data["материал_основания"] == base_material)
+            & (data["горизонтальный/вертикальный"] == direction_type)
+            & (data["крепление_к"] == mounting)
+            & (data["тип_воздуховода"] == duct_type)
+            & (data["диаметр/ширина"] == diameter)
+        ]
+        # print(support_num)
         try:
             final_number = support_num["номер_опоры"].values[0]
-            # print(final_number)
-            # if (
-            #     direction_type == "Горизонтальная/стена"
-            #     or direction_type == "Вертикальная/стена"
-            # ):
-            #     space = int(
-            #         support_num.iloc[0]["расстояние_от_стены_до_оси_воздуховода"]
-            #     )
-            #     description = f"{base_material},{direction_type},{duct_type}, {diameter}мм, {length}м, максимальное расстояние от стены до оси воздуховода {space}мм"
-            # else:
             description = f"{base_material}, {direction_type}, {mounting}, {duct_type}, {diameter}мм, {length}м, по всем вопросам обращаться к специалисту компании HILTI"
             return [final_number, num_of_supports, description]
 
@@ -144,7 +120,7 @@ def sprinkler_support(support):
     direction_type = support["parameters"]["direction_type"]
     pipe_type = support["parameters"]["pipe_type"]
     diameter = int(support["parameters"]["diameter"])
-    length = int(support["parameters"]["length"])
+    length = float(support["parameters"]["length"])
     with open("static/files/Спринклеры.csv", "r", encoding="utf-8") as file:
         data = pd.read_csv(file, delimiter=";")
         # print(data.columns, data.shape)
@@ -191,7 +167,7 @@ def hot_water_supports(support):
     support_type = support['parameters']['support_type']
     diameter = support["parameters"]["diameter"]
     isolation = support["parameters"]["isolation"]
-    length = int(support["parameters"]["length"])
+    length = float(support["parameters"]["length"])
     print(base_material, direction_type, mounting, distance, pipe_number, support_type, diameter)
     with open("static/files/Трубы с температурным расширением.csv", "r", encoding="Windows-1251") as file:
         data = pd.read_csv(file, delimiter=";")
@@ -234,7 +210,7 @@ def roof_vent_supports(support):
     diameter = int(support["parameters"]["diameter"])
     load = support["parameters"]["load"]
     space = int(support["parameters"]["space"])
-    length = int(support["parameters"]["length"])
+    length = float(support["parameters"]["length"])
     print(duct_type,  diameter, load, space, length)
 
     with open("static/files/Вентиляция на кровле.csv", "r", encoding="Windows-1251") as file:

@@ -34,14 +34,13 @@ import os
 import pandas as pd
 from selection_functions import vent_support, sprinkler_support, hot_water_supports, roof_vent_supports
 from functions import connection_to_postgress
-# from dotenv import load_dotenv
 from functools import wraps
 import requests
 from requests.auth import HTTPBasicAuth
 import psycopg2
 from dynamic_select_hot_wat import dynamic_selector_hot_water
 from dynamic_select_roof_vent import dynamic_selector_roof_vent
-
+from dynamic_select_vent import dynamic_selector_vent
 # dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 # load_dotenv(dotenv_path)
 
@@ -49,6 +48,7 @@ app = Flask(__name__)
 Bootstrap(app)
 app.register_blueprint(dynamic_selector_hot_water)
 app.register_blueprint(dynamic_selector_roof_vent)
+app.register_blueprint(dynamic_selector_vent)
 
 app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app, engine_options={"pool_pre_ping": True})
@@ -106,11 +106,11 @@ SYSTEMS = [
     "roof_vent",
 ]
 SYSTEMS_TRANS = [
-    "Трубопроводы с температурным расширением (отопление, ГВ)",
+    "Крепление трубопроводов",
     "Трубопроводы без температурного расширения (ХВ, канализация)",
     "Фиксирующие опоры",
     "Спринклерное пожаротушение",
-    "Вентиляция",
+    "Крепление воздуховодов",
     "Оборудование на кровле",
     "Обвязка воздуховодов на кровле"
 ]
@@ -319,7 +319,8 @@ def choose_system_parameters(sys):
 
 @app.route("/backet", methods=["GET", "POST"])
 def backet():
-    not_empty_systems = []
+    not_empty_systems_rus = []
+    not_empty_systems_eng = []
     specifications = psycopg2.connect(
         dbname=os.environ.get("DB_NAME"),
         host=os.environ.get("DB_HOST"),
@@ -335,35 +336,41 @@ def backet():
             & (spec_df["author_id"] == current_user.id)
         ]
         if len(system_df) > 0:
-            not_empty_systems.append(sys)
+            not_empty_systems_rus.append(sys)
+            eng_system = SYSTEMS[SYSTEMS_TRANS.index(sys)]
+            not_empty_systems_eng.append(eng_system)
         else:
             continue
 
-    if len(not_empty_systems) == 0:
+    if len(not_empty_systems_rus) == 0:
         flash(f"Корзина пуста. Добавьте опоры.")
         return redirect(
             url_for("choose_support_system", logged_in=current_user.is_authenticated)
         )
-    # print(not_empty_systems)
+    print(not_empty_systems_rus)
+    print(not_empty_systems_eng)
 
     return render_template(
         "backet.html",
         logged_in=current_user.is_authenticated,
-        not_empty_systems=not_empty_systems,
-        length_of_systems_list=len(not_empty_systems),
+        not_empty_systems=not_empty_systems_rus,
+        not_empty_systems_eng=not_empty_systems_eng,
+        length_of_systems_list=len(not_empty_systems_rus),
     )
 
 
-@app.route("/backet/<string:sys>", methods=["GET", "POST"])
-def backet_per_system(sys):
+@app.route("/backet/<string:sys_eng>", methods=["GET", "POST"])
+def backet_per_system(sys_eng):
+    sys_rus = SYSTEMS_TRANS[SYSTEMS.index(sys_eng)]
     # print(current_user.id)
-    system_df = connection_to_postgress(sys, current_user)
+    system_df = connection_to_postgress(sys_rus, current_user)
     return render_template(
         "backet_per_system.html",
         logged_in=current_user.is_authenticated,
         supp_data=system_df,
         len_of_df=len(system_df),
-        current_system=sys,
+        current_system=sys_rus,
+        sys_eng=sys_eng
     )
 
 
