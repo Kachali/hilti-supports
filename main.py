@@ -114,7 +114,15 @@ SYSTEMS_TRANS = [
     "Оборудование на кровле",
     "Обвязка воздуховодов на кровле"
 ]
-
+ALBUMS = [
+    "АТР Н6.0 ОПОРНЫЕ КОНСТРУКЦИИ И СРЕДСТВА КРЕПЛЕНИЯ ТРУБОПРОВОДОВ",
+    "АТР",
+    "АТР",
+    "АТР Н6.1 ОПОРНЫЕ КОНСТРУКЦИИ И СРЕДСТВА КРЕПЛЕНИЯ ТРУБОПРОВОДОВ СИСТЕМ АВТОМАТИЧЕСКОГО ПОЖАРОТУШЕНИЯ",
+    "АТР Н7.0 ОПОРНЫЕ КОНСТРУКЦИИ И СРЕДСТВА КРЕПЛЕНИЯ ВОЗДУХОВОДОВ",
+    "АТР Н7.1 ОПОРНЫЕ КОНСТРУКЦИИ И СРЕДСТВА КРЕПЛЕНИЯ ОБОРУДОВАНИЯ НА КРОВЛЕ",
+    "АТР Н7.2 ОПОРНЫЕ КОНСТРУКЦИИ И СРЕДСТВА КРЕПЛЕНИЯ ВОЗДУХОВОДОВ НА КРОВЛЕ"
+]
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -417,6 +425,35 @@ def send(sys):
             f'{request.form.get("objectname")}_{current_user.name}_{sys}_{date.today()}'
         )
         system_to_send_df.to_excel(f"static/files/specifications/{filename}.xlsx")
+
+        return send_from_directory("static", f"files/specifications/{filename}.xlsx")
+
+@app.route("/backet/<string:sys>/send_gost", methods=["GET", "POST"])
+def send_gost(sys):
+    system_df = connection_to_postgress(sys, current_user)
+    if request.method == "POST":
+        for n in range(0, len(system_df)):
+            # print(system_df.loc[n]['id'])
+            line_update = Specification.query.get(int(system_df.loc[n]["id"]))
+            line_update.object = request.form.get("objectname")
+            line_update.object_address = request.form.get("objectaddress")
+            db.session.commit()
+            system_df.at[n, "object"] = request.form.get("objectname")
+            system_df.at[n, "object_address"] = request.form.get("objectaddress")
+
+        system_to_send_df = system_df[["support_name", "number_of_supports"]]
+        system_to_send_df.columns = ["Наименование и техническая характеристика", "Количество"]
+        system_to_send_df.insert(loc=0, column="Позиция", value=list(range(1, len(system_df) + 1)))
+        system_to_send_df.insert(loc=2, column="Тип, марка, обозначение документа, опросного листа", value=ALBUMS[SYSTEMS_TRANS.index(sys)])
+        system_to_send_df.insert(loc=3, column="Код оборудования, изделия, материала", value="-")
+        system_to_send_df.insert(loc=4, column="Завод-изготовитель", value="HILTI")
+        system_to_send_df.insert(loc=5, column="Единица измерения", value="шт")
+        system_to_send_df.insert(loc=7, column="Масса единицы, кг", value="")
+        print(system_to_send_df)
+        filename = (
+            f'{request.form.get("objectname")}_{current_user.name}_{sys}_{date.today()}'
+        )
+        system_to_send_df.to_excel(f"static/files/specifications/{filename}.xlsx", index=False)
 
         return send_from_directory("static", f"files/specifications/{filename}.xlsx")
 
