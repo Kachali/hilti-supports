@@ -30,25 +30,36 @@
 						</tr>
 					{% endfor %}
 				</table>
-
 			</div>
 
-
-			<form action="{{ url_for('send_gost', sys=current_system) }}" method="post">
-				<div class="row gtr-uniform">
-					<div class="col-6 col-12-xsmall">
-						<label><h4>Название объекта:</h4></label>
-						<input type="text" required placeholder="Введите название объекта" name="objectname">
-					</div>
-					<div class="col-6 col-12-xsmall">
-						<label><h4>Адрес объекта:</h4></label>
-						<input type="text" required placeholder="Введите адрес объекта" name="objectaddress">
-					</div>
-				</div>
-				<button type="submit" class="button primary fit">Создать спецификацию и скачать в формате эксель</button>
-			</form>
-
-			<a href="{{ url_for('choose_system_parameters', sys=sys_eng)}}" class="button primary">Добавить опоры</a>
-			<a href="{{ url_for('delete_all', sys=current_system, name=filename) }}" class="button primary">Очистить корзину</a>
+	<div class="row gtr-50">
+		<div class="col-6 col-12-xsmall">
+			<a href="{{ url_for('choose_system_parameters', sys=sys_eng)}}" class="button fit">Добавить опоры</a>
+		</div>
+		<div class="col-6 col-12-xsmall">
+			<a href="{{ url_for('delete_all', sys=current_system, name=filename) }}" class="button fit">Очистить корзину</a>
+		</div>
 	</div>
+
+			<div>
+				<form action="{{ url_for('send_gost', sys=current_system) }}" method="post">
+<!--					<div class="row gtr-50">-->
+<!--						<div class="col-6 col-12-xsmall">-->
+							<label><h4>Название объекта:</h4></label>
+							<input type="text" required placeholder="Введите название объекта" name="objectname">
+<!--						</div>-->
+<!--						<div class="col-6 col-12-xsmall">-->
+							<label><h4>Адрес объекта:</h4></label>
+							<input type="text" required placeholder="Введите адрес объекта" name="objectaddress">
+<!--						</div>-->
+<!--					<div class="col-6 col-12-xsmall">-->
+<!--						<button type="submit" class="button primary fit">Создать спецификацию и скачать в формате эксель</button>-->
+						<button type="submit" class="button primary fit">Создать спецификацию ГОСТ и скачать в формате эксель</button>
+<!--					</div>-->
+				</form>
+				</div>
+<!--	<div class="row gtr-50">-->
+
+
+</div>
 {% endblock %}

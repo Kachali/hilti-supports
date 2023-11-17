@@ -2,16 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, SelectMultipleField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Email
 
-base_materials = [
-    "Железобетон",
-    "Металлоконструкции (швеллер с наклоном)",
-    "Металлоконструкции (швеллер без наклона)",
-    "Металлоконструкции (двутавр)",
-    "Металлоконструкции (прямоуг. труба в обжим)",
-    "Кирпич",
-    "Ребристые плиты перекрытия",
-    "Профилированный лист",
-]
+
 base_materials_vent = [
     "Железобетон, кирпич",
     "Металлоконструкции (швеллер)",
@@ -19,7 +10,6 @@ base_materials_vent = [
     "Металлоконструкции (прямоуг. труба)",
     "Профлист",
 ]
-
 base_materials_hot_water = [
     "Железобетон",
     "Металлоконструкции (швеллер)",
@@ -30,7 +20,14 @@ base_materials_hot_water = [
     "Ячеистый железобетон",
     "Ребристая плита",
 ]
-
+base_materials_sprinkler = [
+    "Железобетон",
+    "Металлоконструкции (швеллер или двутавр без уклона)",
+    "Металлоконструкции (швеллер или двутавр с уклоном)",
+    "Ребристые плиты перекрытия",
+    "Профилированный лист",
+    "Неподвижная опора на раме (железобетон)"
+]
 direction = [
     "Горизонтальная/потолок",
     "Горизонтальная/пол",
@@ -125,10 +122,10 @@ class HotWaterForm(FlaskForm):
     submit = SubmitField(label="Добавить")
 
 class SprinklerForm(FlaskForm):
-    base_material = SelectField("Базовый материал:", choices=base_materials)
-    direction_type = SelectField("Тип разводки:", choices=["Горизонтальная/потолок"])
+    base_material = SelectField("Базовый материал:", choices=base_materials_sprinkler)
+    direction_type = SelectField("Тип разводки:", choices=["Горизонтальная в потолок"])
     pipe_type = SelectField("Тип трубы:", choices=["Стальная труба"])
-    diameter = StringField(label="Диаметр трубы, мм:", validators=[DataRequired()])
+    diameter = SelectField(label="Диаметр трубы, мм:", validate_choice=False)
     length = StringField(label="Длина трассы, м:", validators=[DataRequired()])
     submit = SubmitField(label="Добавить")
 

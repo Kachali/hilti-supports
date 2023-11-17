@@ -41,14 +41,14 @@ import psycopg2
 from dynamic_select_hot_wat import dynamic_selector_hot_water
 from dynamic_select_roof_vent import dynamic_selector_roof_vent
 from dynamic_select_vent import dynamic_selector_vent
-# dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
-# load_dotenv(dotenv_path)
+from dynamic_select_sprinkler import dynamic_selector_sprinkler
 
 app = Flask(__name__)
 Bootstrap(app)
 app.register_blueprint(dynamic_selector_hot_water)
 app.register_blueprint(dynamic_selector_roof_vent)
 app.register_blueprint(dynamic_selector_vent)
+app.register_blueprint(dynamic_selector_sprinkler)
 
 app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app, engine_options={"pool_pre_ping": True})
@@ -384,6 +384,7 @@ def backet_per_system(sys_eng):
 
 @app.route("/backet/<string:sys>/delete", methods=["GET", "POST"])
 def delete_support(sys):
+    sys_eng = SYSTEMS[SYSTEMS_TRANS.index(sys)]
     support_id = request.args.get("id")
     # print(f'id = {support_id}, {type(support_id)}')
     support_to_delete = Specification.query.get(support_id)
@@ -391,7 +392,7 @@ def delete_support(sys):
     db.session.delete(support_to_delete)
     db.session.commit()
     return redirect(
-        url_for("backet_per_system", sys=sys, logged_in=current_user.is_authenticated)
+        url_for("backet_per_system", sys_eng=sys_eng, logged_in=current_user.is_authenticated)
     )
 
 

@@ -93,7 +93,7 @@ def vent_support(support):
     else:
         num_of_supports = math.ceil(length / 3) + 1
 
-    print(base_material, direction_type, mounting, duct_type, diameter, length, num_of_supports)
+    # print(base_material, direction_type, mounting, duct_type, diameter, length, num_of_supports)
     with open(
         "static/files/Вентиляция опоры.csv", "r", encoding="Windows-1251"
     ) as file:
@@ -115,23 +115,70 @@ def vent_support(support):
             return False
 
 
+def hot_water_supports(support):
+    base_material = support["parameters"]["base_material"]
+    direction_type = support["parameters"]["direction_type"]
+    mounting = support["parameters"]["mounting"]
+    distance = int(support["parameters"]["distance"])
+    pipe_number = int(support["parameters"]["pipe_number"])
+    # pipe_type = support['parameters']['pipe_type']
+    support_type = support['parameters']['support_type']
+    diameter = support["parameters"]["diameter"]
+    isolation = support["parameters"]["isolation"]
+    length = float(support["parameters"]["length"])
+    # print(base_material, direction_type, mounting, distance, pipe_number, support_type, diameter)
+    with open("static/files/Трубы с температурным расширением.csv", "r", encoding="Windows-1251") as file:
+        data = pd.read_csv(file, delimiter=";")
+        # print(data.columns, data.shape)
+        support_num = data.loc[
+            (data["материал_основания"] == base_material)
+            & (data["горизонтальный/вертикальный"] == direction_type)
+            & (data["крепление_к"] == mounting)
+            & (data["вылет"] == distance)
+            & (data["тип_опоры"] == support_type)
+            & (data["кол-во_труб"] == pipe_number)
+            & (data["все диаметры"] == diameter)
+        ]
+        # print(support_num)
+        try:
+            final_number = support_num["номер_опоры"].values[0]
+            # print(final_number)
+            # print(steel_pipe_mounting_step["diameter_hot_water"][0])
+            pipe_index = steel_pipe_mounting_step["diameter_hot_water"].index(diameter)
+            if isolation == "Есть":
+                step = float(steel_pipe_mounting_step["step_isolated"][pipe_index])
+            else:
+                step = float(steel_pipe_mounting_step["step_non_isolated"][pipe_index])
+            num_of_supports = math.ceil(length / step) + 1
+            # print(
+            #     f"Длина участка {length}, условный диаметр трубы {diameter[0]}, шаг опор {step}, колиичство опор {num_of_supports}"
+            # )
+            description = f"{base_material}, {direction_type}, {mounting}, {distance}, изоляция: {isolation}, {diameter}мм, {length}м, по всем вопросам обращаться к специалисту компании HILTI"
+            # print(
+            #     f"Номер опоры {final_number}, количество опор {num_of_supports}, {description}"
+            # )
+            return [final_number, num_of_supports, description]
+
+        except IndexError:
+            return False
+
+
 def sprinkler_support(support):
     base_material = support["parameters"]["base_material"]
     direction_type = support["parameters"]["direction_type"]
     pipe_type = support["parameters"]["pipe_type"]
     diameter = int(support["parameters"]["diameter"])
     length = float(support["parameters"]["length"])
-    with open("static/files/Спринклеры.csv", "r", encoding="utf-8") as file:
+    with open("static/files/Спринклеры.csv", "r", encoding="Windows-1251") as file:
         data = pd.read_csv(file, delimiter=";")
         # print(data.columns, data.shape)
         support_num = data.loc[
-            (data["крепление_к"] == base_material) & (data["диаметр_трубы"] == diameter)
+            (data["материал_основания"] == base_material) & (data["диаметр_трубы"] == diameter)
         ]
         # final_number = support_num['номер_опоры'].values[0]
         try:
-            step = support_num.iloc[0]["шаг_опор"]
-            step_float = float(step.replace(",", "."))
-            num_of_supports = math.ceil(length / step_float) + 1
+            step = float(support_num.iloc[0]["шаг_опор"])
+            num_of_supports = math.ceil(length / step) + 1
             print(num_of_supports)
             final_number = support_num["номер_опоры"].values[0]
             print(final_number)
@@ -147,58 +194,10 @@ def sprinkler_support(support):
                     f"нагрузка на профлист при высоте гофры менее 57мм - {proflist_load_less57}мм, более 57мм - {proflist_load_more57}"
                 )
             else:
-                description = f"{base_material},{direction_type},{pipe_type}, {diameter}мм, {length}м, по всем вопросам обращаться к специалисту компании HILTI"
-            print(
-                f"Номер опоры {final_number}, количество опор {num_of_supports}, {description}"
-            )
-            return [final_number, num_of_supports, description]
-
-        except IndexError:
-            return False
-
-
-def hot_water_supports(support):
-    base_material = support["parameters"]["base_material"]
-    direction_type = support["parameters"]["direction_type"]
-    mounting = support["parameters"]["mounting"]
-    distance = int(support["parameters"]["distance"])
-    pipe_number = int(support["parameters"]["pipe_number"])
-    # pipe_type = support['parameters']['pipe_type']
-    support_type = support['parameters']['support_type']
-    diameter = support["parameters"]["diameter"]
-    isolation = support["parameters"]["isolation"]
-    length = float(support["parameters"]["length"])
-    print(base_material, direction_type, mounting, distance, pipe_number, support_type, diameter)
-    with open("static/files/Трубы с температурным расширением.csv", "r", encoding="Windows-1251") as file:
-        data = pd.read_csv(file, delimiter=";")
-        # print(data.columns, data.shape)
-        support_num = data.loc[
-            (data["материал_основания"] == base_material)
-            & (data["горизонтальный/вертикальный"] == direction_type)
-            & (data["крепление_к"] == mounting)
-            & (data["вылет"] == distance)
-            & (data["тип_опоры"] == support_type)
-            & (data["кол-во_труб"] == pipe_number)
-            & (data["все диаметры"] == diameter)
-        ]
-        print(support_num)
-        try:
-            final_number = support_num["номер_опоры"].values[0]
-            print(final_number)
-            print(steel_pipe_mounting_step["diameter_hot_water"][0])
-            pipe_index = steel_pipe_mounting_step["diameter_hot_water"].index(diameter)
-            if isolation == "Есть":
-                step = float(steel_pipe_mounting_step["step_isolated"][pipe_index])
-            else:
-                step = float(steel_pipe_mounting_step["step_non_isolated"][pipe_index])
-            num_of_supports = math.ceil(length / step) + 1
-            print(
-                f"Длина участка {length}, условный диаметр трубы {diameter[0]}, шаг опор {step}, колиичство опор {num_of_supports}"
-            )
-            description = f"{base_material}, {direction_type}, {mounting}, {distance}, изоляция: {isolation}, {diameter}мм, {length}м, по всем вопросам обращаться к специалисту компании HILTI"
-            print(
-                f"Номер опоры {final_number}, количество опор {num_of_supports}, {description}"
-            )
+                description = f"{base_material}, {direction_type}, {pipe_type}, {diameter}мм, {length}м, по всем вопросам обращаться к специалисту компании HILTI"
+            # print(
+            #     f"Номер опоры {final_number}, количество опор {num_of_supports}, {description}"
+            # )
             return [final_number, num_of_supports, description]
 
         except IndexError:
@@ -211,7 +210,7 @@ def roof_vent_supports(support):
     load = support["parameters"]["load"]
     space = int(support["parameters"]["space"])
     length = float(support["parameters"]["length"])
-    print(duct_type,  diameter, load, space, length)
+    # print(duct_type,  diameter, load, space, length)
 
     with open("static/files/Вентиляция на кровле.csv", "r", encoding="Windows-1251") as file:
         data = pd.read_csv(file, delimiter=";")
@@ -227,9 +226,9 @@ def roof_vent_supports(support):
             num_of_supports = math.ceil(length / step) + 1
             final_number = support_num["номер_опоры"].values[0]
             description = f"{duct_type}, {diameter}мм, {load.lower()}, максимальная высота опоры {space}мм, длина участка {length}м, по всем вопросам обращаться к специалисту компании HILTI"
-            print(
-                f"Номер опоры {final_number}, количество опор {num_of_supports}, {description}"
-            )
+            # print(
+            #     f"Номер опоры {final_number}, количество опор {num_of_supports}, {description}"
+            # )
             return [final_number, num_of_supports, description]
 
         except IndexError:
