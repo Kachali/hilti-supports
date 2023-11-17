@@ -35,6 +35,7 @@ from selector_files.dynamic_select_hot_wat import dynamic_selector_hot_water
 from selector_files.dynamic_select_roof_vent import dynamic_selector_roof_vent
 from selector_files.dynamic_select_vent import dynamic_selector_vent
 from selector_files.dynamic_select_sprinkler import dynamic_selector_sprinkler
+# from admin import admin_page
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -42,6 +43,8 @@ app.register_blueprint(dynamic_selector_hot_water)
 app.register_blueprint(dynamic_selector_roof_vent)
 app.register_blueprint(dynamic_selector_vent)
 app.register_blueprint(dynamic_selector_sprinkler)
+# app.register_blueprint(admin_page)
+
 
 app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app, engine_options={"pool_pre_ping": True})
@@ -468,7 +471,6 @@ def delete_all(sys):
         )
     )
 
-
 # декоратор для доступа к странице только админа (id=1)
 def admin_only(f):
     @wraps(f)
@@ -517,7 +519,6 @@ def specification_per_user():
         len_of_df=len(all_user_spec_df),
         admin=True,
     )
-
 
 with app.app_context():
     db.create_all()
