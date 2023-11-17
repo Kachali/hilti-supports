@@ -7,27 +7,22 @@ from flask import (
     flash,
     abort,
     send_from_directory,
-    jsonify,
 )
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-import sqlite3
 from flask_login import (
     UserMixin,
     login_user,
     LoginManager,
-    login_required,
     current_user,
     logout_user,
 )
 from flask_bootstrap import Bootstrap
 from datetime import date
 from forms import (
-    ChooseSystemForm,
     VentForm,
     HotWaterForm,
     SprinklerForm,
-    RadialFanForm,
     RoofVentForm,
 )
 import os
@@ -35,13 +30,11 @@ import pandas as pd
 from selection_functions import vent_support, sprinkler_support, hot_water_supports, roof_vent_supports
 from functions import connection_to_postgress
 from functools import wraps
-import requests
-from requests.auth import HTTPBasicAuth
 import psycopg2
-from dynamic_select_hot_wat import dynamic_selector_hot_water
-from dynamic_select_roof_vent import dynamic_selector_roof_vent
-from dynamic_select_vent import dynamic_selector_vent
-from dynamic_select_sprinkler import dynamic_selector_sprinkler
+from selector_files.dynamic_select_hot_wat import dynamic_selector_hot_water
+from selector_files.dynamic_select_roof_vent import dynamic_selector_roof_vent
+from selector_files.dynamic_select_vent import dynamic_selector_vent
+from selector_files.dynamic_select_sprinkler import dynamic_selector_sprinkler
 
 app = Flask(__name__)
 Bootstrap(app)

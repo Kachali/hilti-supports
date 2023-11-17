@@ -4,6 +4,7 @@ from flask import (
 )
 import pandas as pd
 
+
 dynamic_selector_hot_water = Blueprint('dynamic_selector', __name__)
 
 with open("static/files/Трубы с температурным расширением.csv", "r", encoding="Windows-1251") as file:
