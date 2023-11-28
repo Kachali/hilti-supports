@@ -32,9 +32,10 @@ from selector_files.dynamic_select_hot_wat import dynamic_selector_hot_water
 from selector_files.dynamic_select_roof_vent import dynamic_selector_roof_vent
 from selector_files.dynamic_select_vent import dynamic_selector_vent
 from selector_files.dynamic_select_sprinkler import dynamic_selector_sprinkler
-# from admin import admin_page
+from admin import admin
 from extensions import db
 from models import Specification, User, Comments
+from admin.admin import admin
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -42,7 +43,7 @@ app.register_blueprint(dynamic_selector_hot_water)
 app.register_blueprint(dynamic_selector_roof_vent)
 app.register_blueprint(dynamic_selector_vent)
 app.register_blueprint(dynamic_selector_sprinkler)
-# app.register_blueprint(admin_page)
+app.register_blueprint(admin, url_prefix='/admin')
 
 app.config.from_pyfile('settings.py')
 db.init_app(app)
@@ -448,7 +449,7 @@ def show_users():
     with app.app_context():
         all_users = db.session.query(User).all()
     return render_template(
-        "all_users.html", logged_in=current_user.is_authenticated, users=all_users
+        "users.html", logged_in=current_user.is_authenticated, users=all_users
     )
 
 

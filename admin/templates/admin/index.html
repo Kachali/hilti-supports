@@ -1,0 +1,15 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Добро пожаловать в админку Hilti Selector{% endblock %}
+
+{% block content %}
+{{ super() }}
+<div class="">
+    <p>Вы находитесь на админской странице, можно посмотреть пользователей и спецификации</p>
+       <div>
+           <a href="{{ url_for('.show_users') }}" class="button fit">Пользователи</a>
+       </div>
+        <div>
+            <a href="{{ url_for('.logout') }}" class="button fit">Выйти</a>
+        </div>
+</div>
+{% endblock %}
