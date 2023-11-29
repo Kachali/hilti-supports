@@ -36,6 +36,10 @@ from admin import admin
 from extensions import db
 from models import Specification, User, Comments
 from admin.admin import admin
+# from admin import admin_page
+from extensions import db
+from models import Specification, User, Comments
+
 
 app = Flask(__name__)
 Bootstrap(app)
