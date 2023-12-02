@@ -8,32 +8,17 @@ from flask import (
     flash,
     session
 )
-from functools import wraps
 from flask_login import (
     current_user,
 )
 import psycopg2
 import os
 import pandas as pd
-from flask_sqlalchemy import SQLAlchemy
-
+from extensions import db
+from models import User
 admin = Blueprint('admin_page', __name__, template_folder='templates')
-global db
-global User
-print(db)
 #
 #
-# # декоратор для доступа к странице только админа (id=1)
-# def admin_only(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         # If id is not 1 then return abort with 403 error
-#         if current_user.id != 1:
-#             return abort(403)
-#         # Otherwise continue with the route function
-#         return f(*args, **kwargs)
-#
-#     return decorated_function
 
 def login_admin():
     session['admin_logged'] = 1
@@ -78,37 +63,38 @@ def logout():
 
 @admin.route("/users")
 def show_users():
-    # with app.app_context():
-    all_users = db.session.query(User).all()
-    return render_template(
-        ".users.html", logged_in=current_user.is_authenticated, users=all_users
-    )
+    if isLogged():
+        all_users = db.session.query(User).all()
+        return render_template(
+            "admin/users.html", logged_in=current_user.is_authenticated, users=all_users
+        )
+    else:
+        return redirect(url_for(".login"))
 #
 #
-# @admin_page.route("/user_specifications")
-# def specification_per_user():
-#     user_id = request.args.get("id")
-#     needed_user = User.query.get(user_id)
-#     specifications = psycopg2.connect(
-#         dbname=os.environ.get("DB_NAME"),
-#         host=os.environ.get("DB_HOST"),
-#         user=os.environ.get("DB_USER"),
-#         password=os.environ.get("DB_PASSWORD"),
-#         port="5432",
-#     )
-#     spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
-#     all_user_spec_df = spec_df.loc[
-#         (spec_df["author_id"] == needed_user.id)
-#     ].reset_index(drop=True)
-#     # print(all_user_spec_df)
-#     return render_template(
-#         "user_specifications.html",
-#         logged_in=current_user.is_authenticated,
-#         user=needed_user,
-#         specifications=all_user_spec_df,
-#         len_of_df=len(all_user_spec_df),
-#         admin=True,
-#     )
-# with admin_page.app_context():
-#     db.create_all()
-#     all_users = db.session.query(User).all()
+@admin.route("/user_specifications")
+def specification_per_user():
+    if isLogged():
+        user_id = request.args.get("id")
+        needed_user = User.query.get(user_id)
+        specifications = psycopg2.connect(
+            dbname=os.environ.get("DB_NAME"),
+            host=os.environ.get("DB_HOST"),
+            user=os.environ.get("DB_USER"),
+            password=os.environ.get("DB_PASSWORD"),
+            port="5432",
+        )
+        spec_df = pd.read_sql_query("SELECT * FROM specifications", specifications)
+        all_user_spec_df = spec_df.loc[
+            (spec_df["author_id"] == needed_user.id)
+        ].reset_index(drop=True)
+        # print(all_user_spec_df)
+        return render_template(
+            "admin/user_specifications.html",
+            logged_in=isLogged,
+            user=needed_user,
+            specifications=all_user_spec_df,
+            len_of_df=len(all_user_spec_df),
+        )
+    else:
+        return redirect(url_for(".login"))
