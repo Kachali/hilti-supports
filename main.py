@@ -5,7 +5,6 @@ from flask import (
     url_for,
     redirect,
     flash,
-    abort,
     send_from_directory,
 )
 from flask_login import (
@@ -32,11 +31,7 @@ from selector_files.dynamic_select_hot_wat import dynamic_selector_hot_water
 from selector_files.dynamic_select_roof_vent import dynamic_selector_roof_vent
 from selector_files.dynamic_select_vent import dynamic_selector_vent
 from selector_files.dynamic_select_sprinkler import dynamic_selector_sprinkler
-from admin import admin
-from extensions import db
-from models import Specification, User, Comments
 from admin.admin import admin
-# from admin import admin_page
 from extensions import db
 from models import Specification, User, Comments
 
@@ -90,11 +85,7 @@ def load_user(user_id):
 
 @app.route("/")
 def home():
-    # if current_user.is_authenticated:
-    #     # print(current_user)
-    #     return redirect(url_for("choose_support_system"))
-    # else:
-        return render_template("index.html", logged_in=current_user.is_authenticated)
+    return render_template("index.html", logged_in=current_user.is_authenticated)
 
 
 @app.route("/register", methods=["GET", "POST"])
