@@ -1,5 +1,4 @@
 from flask import (
-    abort,
     request,
     render_template,
     Blueprint,
@@ -8,17 +7,13 @@ from flask import (
     flash,
     session
 )
-from flask_login import (
-    current_user,
-)
 import psycopg2
 import os
 import pandas as pd
 from extensions import db
 from models import User
 admin = Blueprint('admin_page', __name__, template_folder='templates')
-#
-#
+
 
 def login_admin():
     session['admin_logged'] = 1
