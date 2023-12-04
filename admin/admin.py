@@ -28,7 +28,7 @@ def logout_admin():
 def index():
     if not isLogged():
         return redirect(url_for('.login'))
-    return render_template('admin/index.html', title='Админ-панель', logged_in=isLogged)
+    return render_template('admin/index.html', title='Админ-панель', logged_in=isLogged())
 
 @admin.route("/login", methods=["GET", "POST"])
 def login():
@@ -45,7 +45,7 @@ def login():
             flash("Неверная пара логин/пароль.", "error")
             return redirect(url_for(".login"))
 
-    return render_template("admin/login.html", title='Админ-панель', logged_in=isLogged)
+    return render_template("admin/login.html", title='Админ-панель', logged_in=isLogged())
 
 
 @admin.route("/logout", methods=["GET", "POST"])
@@ -61,7 +61,7 @@ def show_users():
     if isLogged():
         all_users = db.session.query(User).all()
         return render_template(
-            "admin/users.html", logged_in=isLogged, users=all_users
+            "admin/users.html", logged_in=isLogged(), users=all_users
         )
     else:
         return redirect(url_for(".login"))
@@ -90,7 +90,7 @@ def specification_per_user():
         # print(all_user_spec_df.columns)
         return render_template(
             "admin/user_specifications.html",
-            logged_in=isLogged,
+            logged_in=isLogged(),
             user=needed_user,
             specifications=new_user_spec_df,
             len_of_df=len(new_user_spec_df),
