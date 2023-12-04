@@ -25,17 +25,25 @@
             <tbody>
                 {% for n in range(0, len_of_df) %}
                     <tr>
-                    <td>{{ specifications.loc[n]['id'] }}</td>
+                    {% if specifications.iloc[n]['system'] == 'Крепление воздуховодов': %}
+                        <td BGCOLOR="#CCCCCC">{{ specifications.iloc[n]['id'] }}</td>
+                    {% elif specifications.iloc[n]['system'] == 'Крепление трубопроводов': %}
+                        <td BGCOLOR="red">{{ specifications.iloc[n]['id'] }}</td>
+                    {% elif specifications.iloc[n]['system'] == 'Обвязка воздуховодов на кровле': %}
+                        <td BGCOLOR="yellow">{{ specifications.iloc[n]['id'] }}</td>
+                    {% else %}
+                    <td>{{ specifications.iloc[n]['id'] }}</td>
+                    {% endif %}
 <!--                    <td>{{ specifications.loc[n]['author_id'] }}</td>-->
-                    <td>{{ specifications.loc[n]['system'] }}</td>
-                    <td>{{ specifications.loc[n]['support_name'] }}</td>
-                    <td>{{ specifications.loc[n]['description'] }}</td>
-                    <td>{{ specifications.loc[n]['number_of_supports'] }}</td>
-                     <td>{{ specifications.loc[n]['date'] }}</td>
-                     <td>{{ specifications.loc[n]['status'] }}</td>
-                     <td>{{ specifications.loc[n]['object'] }}</td>
-                     <td>{{ specifications.loc[n]['object_address'] }}</td>
-                     <td>{{ specifications.loc[n]['send_date'] }}</td>
+                    <td>{{ specifications.iloc[n]['system'] }}</td>
+                    <td>{{ specifications.iloc[n]['support_name'] }}</td>
+                    <td>{{ specifications.iloc[n]['description'] }}</td>
+                    <td>{{ specifications.iloc[n]['number_of_supports'] }}</td>
+                     <td>{{ specifications.iloc[n]['date'] }}</td>
+                     <td>{{ specifications.iloc[n]['status'] }}</td>
+                     <td>{{ specifications.iloc[n]['object'] }}</td>
+                     <td>{{ specifications.iloc[n]['object_address'] }}</td>
+                     <td>{{ specifications.iloc[n]['send_date'] }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

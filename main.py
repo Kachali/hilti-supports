@@ -167,112 +167,113 @@ def logout():
 
 @app.route("/support_system", methods=["GET", "POST"])
 def choose_support_system():
+    if current_user.is_authenticated:
     # form = ChooseSystemForm()
-    if current_user.id == 1:
-        admin = True
-    else:
-        admin = False
     # if form.validate_on_submit():
     #     system = form.system.data[0]
     #     print(system)
     #     return redirect(url_for("choose_system_parameters", sys=system))
 
-    return render_template(
-        "support_system.html",
-        logged_in=current_user.is_authenticated,
-        # form=form,
-        admin=admin,
-    )
+        return render_template(
+            "support_system.html",
+            logged_in=current_user.is_authenticated,
+            # form=form,
+        )
+    else:
+        return redirect(url_for("login"))
 
 
 @app.route("/support_system/<string:sys>", methods=["GET", "POST"])
 def choose_system_parameters(sys):
-    translated_system = SYSTEMS_TRANS[SYSTEMS.index(sys)]
-    if sys == "ventilation":
-        param_form = VentForm()
-    elif sys == "sprinkler":
-        param_form = SprinklerForm()
-    # elif sys == 'radial_fans':
-    #     param_form = RadialFanForm()
-    elif sys == "hot_water":
-        param_form = HotWaterForm()
-    elif sys == 'roof_vent':
-        param_form = RoofVentForm()
-    else:
-        return "Страница в разработке"
-    # elif sys == 'cold_water':
-    #     param_form = ColdWaterForm()
-    # else:
-    #     param_form =
-
-    if request.method == "POST":
-            # and param_form.validate_on_submit():
-        # name_of_file = f'{current_user.name}_{translated_system}.csv'
-        parameters = param_form.data
-        # print(parameters)
-        parameters.pop("csrf_token")
-        parameters.pop("submit")
-        choices = {"system": sys, "parameters": parameters}
+    if current_user.is_authenticated:
+        translated_system = SYSTEMS_TRANS[SYSTEMS.index(sys)]
         if sys == "ventilation":
-            current_system = vent_support(choices)
-
+            param_form = VentForm()
         elif sys == "sprinkler":
-            current_system = sprinkler_support(choices)
-
+            param_form = SprinklerForm()
+        # elif sys == 'radial_fans':
+        #     param_form = RadialFanForm()
         elif sys == "hot_water":
-            current_system = hot_water_supports(choices)
+            param_form = HotWaterForm()
+        elif sys == 'roof_vent':
+            param_form = RoofVentForm()
+        else:
+            return "Страница в разработке"
+        # elif sys == 'cold_water':
+        #     param_form = ColdWaterForm()
+        # else:
+        #     param_form =
 
-        elif sys == "roof_vent":
-            current_system = roof_vent_supports(choices)
-        # print(f'это {current_system}')
-        # Это условие может быть разным в зависимости от системы
-        if not current_system:
-            flash(
-                f"Недопустимые данные. Попробуйте еще раз.\nПри возникновении вопросов, обратитесь к специалисту компании HILTI."
+        if request.method == "POST":
+                # and param_form.validate_on_submit():
+            # name_of_file = f'{current_user.name}_{translated_system}.csv'
+            parameters = param_form.data
+            # print(parameters)
+            parameters.pop("csrf_token")
+            parameters.pop("submit")
+            choices = {"system": sys, "parameters": parameters}
+            if sys == "ventilation":
+                current_system = vent_support(choices)
+
+            elif sys == "sprinkler":
+                current_system = sprinkler_support(choices)
+
+            elif sys == "hot_water":
+                current_system = hot_water_supports(choices)
+
+            elif sys == "roof_vent":
+                current_system = roof_vent_supports(choices)
+            # print(f'это {current_system}')
+            # Это условие может быть разным в зависимости от системы
+            if not current_system:
+                flash(
+                    f"Недопустимые данные. Попробуйте еще раз.\nПри возникновении вопросов, обратитесь к специалисту компании HILTI."
+                )
+                return redirect(
+                    url_for(
+                        "choose_system_parameters",
+                        sys=sys,
+                        logged_in=current_user.is_authenticated,
+                    )
+                )
+            # Это условие по идее не должно меняться
+            else:
+                support_name = current_system[0]
+                number_of_supports = current_system[1]
+                support_description = current_system[2]
+                # print(f'{support_name}, {number_of_supports}, {suppo
+                # rt_description}')
+                flash(f"Опора добавлена.")
+
+            new_specification = Specification(
+                system=translated_system,
+                support_name=support_name,
+                description=support_description,
+                number_of_supports=number_of_supports,
+                date=date.today().strftime("%d/%m/%Y"),
+                author=current_user,
+                status="В работе",
             )
+            db.session.add(new_specification)
+            db.session.commit()
+
             return redirect(
                 url_for(
                     "choose_system_parameters",
-                    sys=sys,
                     logged_in=current_user.is_authenticated,
+                    form=param_form,
+                    sys=sys,
                 )
             )
-        # Это условие по идее не должно меняться
-        else:
-            support_name = current_system[0]
-            number_of_supports = current_system[1]
-            support_description = current_system[2]
-            # print(f'{support_name}, {number_of_supports}, {suppo
-            # rt_description}')
-            flash(f"Опора добавлена.")
 
-        new_specification = Specification(
-            system=translated_system,
-            support_name=support_name,
-            description=support_description,
-            number_of_supports=number_of_supports,
-            date=date.today().strftime("%d/%m/%Y"),
-            author=current_user,
-            status="В работе",
+        return render_template(
+            f"{sys}.html",
+            logged_in=current_user.is_authenticated,
+            form=param_form,
+            system=sys,
         )
-        db.session.add(new_specification)
-        db.session.commit()
-
-        return redirect(
-            url_for(
-                "choose_system_parameters",
-                logged_in=current_user.is_authenticated,
-                form=param_form,
-                sys=sys,
-            )
-        )
-
-    return render_template(
-        f"{sys}.html",
-        logged_in=current_user.is_authenticated,
-        form=param_form,
-        system=sys,
-    )
+    else:
+        return redirect(url_for("login"))
 
 
 @app.route("/backet", methods=["GET", "POST"])

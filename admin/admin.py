@@ -83,13 +83,16 @@ def specification_per_user():
         all_user_spec_df = spec_df.loc[
             (spec_df["author_id"] == needed_user.id)
         ].reset_index(drop=True)
-        # print(all_user_spec_df)
+        # print(all_user_spec_df.head())
+        new_user_spec_df = all_user_spec_df.sort_values(by=['system','date'], ascending=[True, True])
+        print(new_user_spec_df.head())
+        # print(all_user_spec_df.columns)
         return render_template(
             "admin/user_specifications.html",
             logged_in=isLogged,
             user=needed_user,
-            specifications=all_user_spec_df,
-            len_of_df=len(all_user_spec_df),
+            specifications=new_user_spec_df,
+            len_of_df=len(new_user_spec_df),
         )
     else:
         return redirect(url_for(".login"))
