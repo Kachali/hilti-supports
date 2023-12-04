@@ -84,7 +84,8 @@ def specification_per_user():
             (spec_df["author_id"] == needed_user.id)
         ].reset_index(drop=True)
         # print(all_user_spec_df.head())
-        new_user_spec_df = all_user_spec_df.sort_values(by=['system','date'], ascending=[True, True])
+        all_user_spec_df['date'] = pd.to_datetime(all_user_spec_df['date']).dt.date
+        new_user_spec_df = all_user_spec_df.sort_values(by=['date'], ascending=[False])
         print(new_user_spec_df.head())
         # print(all_user_spec_df.columns)
         return render_template(

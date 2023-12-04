@@ -28,9 +28,9 @@
                     {% if specifications.iloc[n]['system'] == 'Крепление воздуховодов': %}
                         <td BGCOLOR="#CCCCCC">{{ specifications.iloc[n]['id'] }}</td>
                     {% elif specifications.iloc[n]['system'] == 'Крепление трубопроводов': %}
-                        <td BGCOLOR="red">{{ specifications.iloc[n]['id'] }}</td>
+                        <td BGCOLOR="FF6969">{{ specifications.iloc[n]['id'] }}</td>
                     {% elif specifications.iloc[n]['system'] == 'Обвязка воздуховодов на кровле': %}
-                        <td BGCOLOR="yellow">{{ specifications.iloc[n]['id'] }}</td>
+                        <td BGCOLOR="F2EE9D">{{ specifications.iloc[n]['id'] }}</td>
                     {% else %}
                     <td>{{ specifications.iloc[n]['id'] }}</td>
                     {% endif %}
