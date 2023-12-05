@@ -5,11 +5,13 @@ from flask import (
     url_for,
     redirect,
     flash,
-    session
+    session,
+    send_from_directory,
 )
 import psycopg2
 import os
 import pandas as pd
+from datetime import date
 from extensions import db
 from models import User
 admin = Blueprint('admin_page', __name__, template_folder='templates')
@@ -83,11 +85,9 @@ def specification_per_user():
         all_user_spec_df = spec_df.loc[
             (spec_df["author_id"] == needed_user.id)
         ].reset_index(drop=True)
-        # print(all_user_spec_df.head())
-        all_user_spec_df['date'] = pd.to_datetime(all_user_spec_df['date']).dt.date
+        all_user_spec_df['date'] = pd.to_datetime(all_user_spec_df['date'], dayfirst=True).dt.date
         new_user_spec_df = all_user_spec_df.sort_values(by=['date'], ascending=[False])
-        print(new_user_spec_df.head())
-        # print(all_user_spec_df.columns)
+        session['data'] = new_user_spec_df.to_json()
         return render_template(
             "admin/user_specifications.html",
             logged_in=isLogged(),
@@ -95,5 +95,33 @@ def specification_per_user():
             specifications=new_user_spec_df,
             len_of_df=len(new_user_spec_df),
         )
+    else:
+        return redirect(url_for(".login"))
+
+@admin.route("/user_specifications/download", methods=["GET", "POST"])
+def download_user_spec():
+    if isLogged():
+        df = session.get('data')
+        df = pd.read_json(df)
+        user_name = request.args.get("user_name", None)
+        user_company = request.args.get("user_company", None)
+        user_email = request.args.get("user_email", None)
+        if request.method == "POST":
+            filename = (f'Спецификации пользователя {user_name}, компания {user_company}, email {user_email}, {date.today()}')
+            df.columns = [
+                "ID опоры в базе данных",
+                "Система",
+                "Наименование опоры",
+                "Описание",
+                "Количество опор",
+                "Дата",
+                "ID Автора",
+                "Статус",
+                "Объект",
+                "Адрес объекта",
+                "Дата отправки"
+            ]
+            df.to_excel(f"admin/static/files/specifications/{filename}.xlsx", index=False)
+            return send_from_directory("admin/static", f"files/specifications/{filename}.xlsx")
     else:
         return redirect(url_for(".login"))

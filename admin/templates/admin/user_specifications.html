@@ -6,6 +6,11 @@
     <h4>{{user.name}}, {{ user.company }}, {{ user.email }}, id={{user.id}}</h4>
 
     <div class="table-wrapper">
+        <div>
+            <form action="{{ url_for('admin_page.download_user_spec', df=specifications, user_name=user.name, user_company=user.company, user_email=user.email) }}" method="post">
+                <button type="submit" class="button primary fit">Скачать в формате эксель</button>
+            </form>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -23,6 +28,7 @@
                 </tr>
             </thead>
             <tbody>
+
                 {% for n in range(0, len_of_df) %}
                     <tr>
                     {% if specifications.iloc[n]['system'] == 'Крепление воздуховодов': %}
@@ -48,6 +54,7 @@
                 {% endfor %}
             </tbody>
         </table>
+
     </div>
 </div>
 
